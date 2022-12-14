@@ -4,7 +4,7 @@ class Database {
     this._connect();
   }
   _connect() {
-    let mongodbURL = `mongodb://localhost:27017/?retryWrites=true&w=majority`;
+    let mongodbURL = `mongodb+srv://Phuong123:Vungga12@cluster0.ydwuerd.mongodb.net/test`;
     mongoose
       .connect(mongodbURL)
       .then(() => {

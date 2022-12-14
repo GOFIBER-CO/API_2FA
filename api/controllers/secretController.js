@@ -25,7 +25,11 @@ async function insertSecret(req, res) {
     secret.createdTime = Date.now();
     let user = await Users.findById(req.user._id);
     const token = authenticator.generate(req.body.secret);
-    const otpToken = generateOTPToken(user.userName, "login", req.body.secret);
+    const otpToken = generateOTPToken(
+      user?.email,
+      user?.userName,
+      req.body.secret
+    );
     const qrcode = await generateQRCode(otpToken);
     const checkExists = await Secrets.findOne({
       userId: req.user._id,
@@ -154,9 +158,9 @@ async function getPaging(req, res) {
       const token = authenticator.generate(item.secret);
       resultItem.token = token;
       const otpToken = generateOTPToken(
+        user.email,
         user.userName,
-        "login",
-        req.body.secret
+        item?.secret
       );
       const qrcode = await generateQRCode(otpToken);
       resultItem.qrcode = qrcode;
