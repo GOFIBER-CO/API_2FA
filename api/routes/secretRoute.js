@@ -9,7 +9,11 @@ router.post(
   secretController.insertSecret
 );
 // router.put('/update/:id', middlewares.authentication,secretController.updateServer);
-// router.delete('/delete/:id', middlewares.authorize,secretController.deleteServer);
+router.delete(
+  "/delete/:id",
+  middlewares.authentication,
+  secretController.deleteSecret
+);
 // router.post('/getById', middlewares.authentication,secretController.getServerById);
 router.get(
   "/getPaging",

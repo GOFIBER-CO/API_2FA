@@ -148,10 +148,10 @@ async function login(req, res) {
       ) {
         const token = jwt.sign(
           {
-            id: user._id,
+            _id: user._id,
             nghi: +new Date(),
           },
-          "Truong top 1 server",
+          process.env.SECRET_KEY,
           {
             expiresIn: process.env.ACCESS_TOKEN_TIME,
           }

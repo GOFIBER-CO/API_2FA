@@ -85,11 +85,11 @@ async function updateLog(req, res) {
   }
 }
 
-async function deleteLog(req, res) {
+async function deleteSecret(req, res) {
   // if (isValidObjectId(req.params.id)) {
   if (req.params.id) {
     try {
-      let log = await Logs.findByIdAndDelete(req.params.id);
+      let log = await Secrets.findByIdAndDelete(req.params.id);
       if (!log) {
         let response = new ResponseModel(0, "No item found!", null);
         res.json(response);
@@ -123,23 +123,24 @@ async function getLogById(req, res) {
 async function getPaging(req, res) {
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
-  let user = await Users.findById(req.user._id);
-  let searchObj = {};
-  if (req.query.search) {
-    searchObj = {
-      logName: { $regex: ".*" + req.query.search + ".*" },
-      userId: req.user._id,
-    };
-  } else {
-    searchObj = {
-      userId: req.user._id,
-    };
-  }
+  let user = await Users.findById(req?.user?._id);
+  let searchObj = { userId: req?.user?._id };
+  // if (req.query.search) {
+  //   searchObj = {
+  //     // logName: { $regex: ".*" + req.query.search + ".*" },
+  //     userId: req?.user?._id,
+  //   };
+  // } else {
+  //   searchObj = {
+  //     userId: req?.user?._id,
+  //   };
+  // }
 
   try {
     let log = await Secrets.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
+      .populate("userId")
       .sort({
         createdTime: "desc",
       });
@@ -222,7 +223,7 @@ async function getLogByUserId(req, res) {
 
 exports.insertSecret = insertSecret;
 exports.updateLog = updateLog;
-exports.deleteLog = deleteLog;
+exports.deleteSecret = deleteSecret;
 exports.getLogById = getLogById;
 exports.getPaging = getPaging;
 exports.getLogByUserId = getLogByUserId;

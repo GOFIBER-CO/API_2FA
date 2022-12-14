@@ -7,6 +7,7 @@ let SecretSchema = new Schema(
   {
     secret: {
       type: String,
+      unique: true,
     },
     userId: {
       type: Schema.Types.ObjectId,
