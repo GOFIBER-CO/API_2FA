@@ -27,10 +27,9 @@ let userSchema = new Schema(
     updatedTime: {
       type: Date,
     },
+    role: { type: Schema.Types.ObjectId, ref: "Roles" },
   },
   { versionKey: false }
 );
-
-userSchema.index({ userName: "text" });
 
 module.exports = mongoose.model("Users", userSchema);

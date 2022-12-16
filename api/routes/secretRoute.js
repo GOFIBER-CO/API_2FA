@@ -8,6 +8,16 @@ router.post(
   middlewares.authentication,
   secretController.insertSecret
 );
+router.post(
+  "/export",
+  middlewares.authentication,
+  secretController.exportSecret
+);
+router.post(
+  "/delete",
+  middlewares.authentication,
+  secretController.deleteSecrets
+);
 // router.put('/update/:id', middlewares.authentication,secretController.updateServer);
 router.delete(
   "/delete/:id",
@@ -19,6 +29,11 @@ router.get(
   "/getPaging",
   middlewares.authentication,
   secretController.getPaging
+);
+router.get(
+  "/import/:id",
+  middlewares.authentication,
+  secretController.importSecret
 );
 
 module.exports = router;

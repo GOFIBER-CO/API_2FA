@@ -6,6 +6,7 @@ const otplib = require("otplib");
 const { authenticator } = otplib;
 const qrcode = require("qrcode");
 const Users = require("../../database/entities/authentication/Users");
+const Export = require("../../database/entities/Export");
 const generateOTPToken = (username, serviceName, secret) => {
   return authenticator.keyuri(username, serviceName, secret);
 };
@@ -69,6 +70,57 @@ async function insertSecret(req, res) {
   }
 }
 
+async function exportSecret(req, res) {
+  try {
+    req.body.userId = req.user._id;
+    let secret = new Export(req.body);
+    secret.createdTime = Date.now();
+    secret.save(async function (err, newSecret) {
+      if (err) {
+        let response = new ResponseModel(-1, err.message, err);
+        res.json(response);
+      } else {
+        const qrcode = await generateQRCode(
+          `${process.env.URL_LOCAL}/api/secret/import/${newSecret._id}`
+        );
+        let response = new ResponseModel(1, "Create secret success!", qrcode);
+        res.json(response);
+      }
+    });
+  } catch (error) {
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+async function importSecret(req, res) {
+  try {
+    const listSecret = await Export.findById(req.params.id);
+    const listData = await Secrets.find({
+      _id: { $in: listSecret.secret },
+    }).select("-_id secret userId");
+    listData.map((item) => (item.userId = req.user._id));
+    const result = await Secrets.insertMany(listData);
+    let response = new ResponseModel(1, "Import secret success!", result);
+    res.json(response);
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+async function deleteSecrets(req, res) {
+  try {
+    const deleteMulti = await Secrets.deleteMany({
+      _id: req.body,
+    });
+    let response = new ResponseModel(1, "Delete secret success!", deleteMulti);
+    res.json(response);
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
 async function updateLog(req, res) {
   try {
     let newLog = { updatedTime: Date.now(), ...req.body };
@@ -225,6 +277,9 @@ async function getLogByUserId(req, res) {
   }
 }
 
+exports.deleteSecrets = deleteSecrets;
+exports.exportSecret = exportSecret;
+exports.importSecret = importSecret;
 exports.insertSecret = insertSecret;
 exports.updateLog = updateLog;
 exports.deleteSecret = deleteSecret;
