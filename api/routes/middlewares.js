@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const ResponseModel = require("../models/ResponseModel");
+const RoleActions = require("../../database/entities/authentication/RoleActions");
 require("dotenv").config();
 const secretKey = process.env.SECRET_KEY;
 
@@ -8,6 +9,7 @@ async function authorize(req, res, next) {
   if (typeof bearerHeader !== "undefined") {
     const token = bearerHeader.split(" ")[1];
     jwt.verify(token, secretKey, async (err, authorizedData) => {
+      console.log(authorizedData);
       if (err) {
         let response = new ResponseModel(403, err.message, err);
         res.status(403).json(response);

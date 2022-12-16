@@ -137,7 +137,9 @@ async function login2Fa(req, res) {
 
 async function login(req, res) {
   try {
-    let user = await Users.findOne({ userName: req.body.userName });
+    let user = await Users.findOne({ userName: req.body.userName }).populate(
+      "role"
+    );
     if (user) {
       if (
         user.password ==
@@ -146,9 +148,12 @@ async function login(req, res) {
           .update(req.body.password)
           .digest("hex")
       ) {
+        user.password = "";
         const token = jwt.sign(
           {
             _id: user._id,
+            user,
+            role: user.role,
             nghi: +new Date(),
           },
           process.env.SECRET_KEY,
