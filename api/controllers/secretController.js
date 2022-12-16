@@ -7,9 +7,11 @@ const { authenticator } = otplib;
 const qrcode = require("qrcode");
 const Users = require("../../database/entities/authentication/Users");
 const Export = require("../../database/entities/Export");
+const Secret = require("../../database/entities/Secret");
 const generateOTPToken = (username, serviceName, secret) => {
   return authenticator.keyuri(username, serviceName, secret);
 };
+
 const generateQRCode = async (otpAuth) => {
   try {
     const QRCodeImageUrl = await qrcode.toDataURL(otpAuth);
@@ -19,54 +21,42 @@ const generateQRCode = async (otpAuth) => {
     return;
   }
 };
-async function insertSecret(req, res) {
+async function insertSecret(req, res, next) {
   try {
     req.body.userId = req.user._id;
-    let secret = new Secrets(req.body);
-    secret.createdTime = Date.now();
-    let user = await Users.findById(req.user._id);
-    const token = authenticator.generate(req.body.secret);
-    const otpToken = generateOTPToken(
-      user?.email,
-      user?.userName,
-      req.body.secret
-    );
-    const qrcode = await generateQRCode(otpToken);
-    const checkExists = await Secrets.findOne({
-      userId: req.user._id,
-      secret: req.body.secret,
+
+    const { secret, userId, comment } = req.body;
+    const secretFilter = [];
+    secret?.map((item) => {
+      if (!secretFilter?.includes(item)) {
+        secretFilter.push(item);
+      }
     });
-    if (checkExists) {
-      let result = {
-        _id: checkExists._id,
-        userId: checkExists.userId,
-        createdTime: checkExists.createdTime,
-        secret: checkExists.secret,
-      };
-      Object.assign(result, { token }, { qrcode });
-      let response = new ResponseModel(1, "Get secret success!", result);
-      res.json(response);
-    } else {
-      secret.save(function (err, newSecret) {
-        let result = {
-          _id: newSecret._id,
-          userId: newSecret.userId,
-          createdTime: newSecret.createdTime,
-          secret: newSecret.secret,
-        };
-        Object.assign(result, { token }, { qrcode });
-        if (err) {
-          let response = new ResponseModel(-1, err.message, err);
-          res.json(response);
-        } else {
-          let response = new ResponseModel(1, "Create secret success!", result);
-          res.json(response);
-        }
+    const listData = secretFilter?.map(async (item) => {
+      const result = new Secrets({
+        secret: item,
+        userId: userId,
+        createdTime: Date.now(),
+        comment,
       });
-    }
+      await result.save();
+    });
+    await Promise.all(listData)
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    let response = new ResponseModel(1, "Create secret success!", {});
+    res.json(response);
+    // console.log(listData);
+    // const result = await Secrets.insertMany(listData);
   } catch (error) {
-    let response = new ResponseModel(404, error.message, error);
-    res.status(404).json(response);
+    console.log(error);
+    next();
+    // let response = new ResponseModel(404, error.message, error);
+    // res.status(404).json(response);
   }
 }
 
@@ -99,6 +89,7 @@ async function importSecret(req, res) {
       _id: { $in: listSecret.secret },
     }).select("-_id secret userId");
     listData.map((item) => (item.userId = req.user._id));
+    Secrets.createIndexes({ secret: 1, userId: 1 }, { unique: true });
     const result = await Secrets.insertMany(listData);
     let response = new ResponseModel(1, "Import secret success!", result);
     res.json(response);
@@ -205,6 +196,7 @@ async function getPaging(req, res) {
         _id: item._id,
         secret: item?.secret,
         userId: item?.userId,
+        comment: item?.comment,
         createdTime: item?.createdTime,
       };
       const token = authenticator.generate(item.secret);

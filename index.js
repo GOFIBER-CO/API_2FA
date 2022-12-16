@@ -24,6 +24,7 @@ const postRoute = require("./api/routes/postRoute");
 const categoryRoute = require("./api/routes/categoryRoute");
 const tagRoute = require("./api/routes/tagRoute");
 const bannerRoute = require("./api/routes/bannerRoute");
+const appRoute = require("./api/routes/appRoute");
 const menuRoute = require("./api/routes/menuRoute");
 const shortCodeRoute = require("./api/routes/shortCodeRoute");
 const schemaRoute = require("./api/routes/schemaRoute");
@@ -38,6 +39,7 @@ app.use("/api/category", categoryRoute);
 app.use("/api/tag", tagRoute);
 app.use("/api/banner", bannerRoute);
 app.use("/api/menu", menuRoute);
+app.use("/api/app", appRoute);
 app.use("/api/shortcode", shortCodeRoute);
 app.use("/api/schema", schemaRoute);
 //import routes

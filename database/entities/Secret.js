@@ -6,14 +6,15 @@ const { Schema } = mongoose;
 let SecretSchema = new Schema({
   secret: {
     type: String,
-    unique: true,
-    index: true,
   },
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: "Users",
-    unique: true,
-    index: true,
+  userId: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
+    },
+  ],
+  comment: {
+    type: String,
   },
   createdTime: {
     type: Date,
