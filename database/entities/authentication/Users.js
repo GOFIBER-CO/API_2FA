@@ -17,7 +17,6 @@ let userSchema = new Schema(
 
     email: {
       type: String,
-      required: true,
     },
 
     createdTime: {

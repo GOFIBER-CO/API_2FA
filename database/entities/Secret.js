@@ -13,6 +13,10 @@ let SecretSchema = new Schema({
       ref: "Users",
     },
   ],
+  userCreated: {
+    type: Schema.Types.ObjectId,
+    ref: "Users",
+  },
   comment: {
     type: String,
   },

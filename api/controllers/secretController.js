@@ -35,7 +35,8 @@ async function insertSecret(req, res, next) {
     const listData = secretFilter?.map(async (item) => {
       const result = new Secrets({
         secret: item,
-        userId: userId,
+        userId: [userId],
+        userCreated: userId,
         createdTime: Date.now(),
         comment,
       });
@@ -87,8 +88,8 @@ async function importSecret(req, res) {
     const listSecret = await Export.findById(req.params.id);
     const listData = await Secrets.find({
       _id: { $in: listSecret.secret },
-    }).select("-_id secret userId");
-    listData.map((item) => (item.userId = req.user._id));
+    }).select("-_id secret userCreated");
+    listData.map((item) => (item.userCreated = req.user._id));
     Secrets.createIndexes({ secret: 1, userId: 1 }, { unique: true });
     const result = await Secrets.insertMany(listData);
     let response = new ResponseModel(1, "Import secret success!", result);
@@ -103,27 +104,37 @@ async function deleteSecrets(req, res) {
   try {
     const deleteMulti = await Secrets.deleteMany({
       _id: req.body,
+      userCreated: req.user._id,
     });
-    let response = new ResponseModel(1, "Delete secret success!", deleteMulti);
-    res.json(response);
+    if (deleteMulti.deletedCount === 0) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Delete secret success!",
+        deleteMulti
+      );
+      res.json(response);
+    }
   } catch (error) {
     console.log(error);
     let response = new ResponseModel(404, error.message, error);
     res.status(404).json(response);
   }
 }
-async function updateLog(req, res) {
+async function updateUserSecret(req, res) {
   try {
-    let newLog = { updatedTime: Date.now(), ...req.body };
-    let updatedLog = await Logs.findOneAndUpdate(
+    let newSecret = { updatedTime: Date.now(), userId: req.body };
+    let updateSecret = await Secrets.findOneAndUpdate(
       { _id: req.params.id },
-      newLog
+      newSecret
     );
-    if (!updatedLog) {
+    if (!updateSecret) {
       let response = new ResponseModel(0, "No item found!", null);
       res.json(response);
     } else {
-      let response = new ResponseModel(1, "Update log success!", newLog);
+      let response = new ResponseModel(1, "Update secret success!", newSecret);
       res.json(response);
     }
   } catch (error) {
@@ -136,8 +147,11 @@ async function deleteSecret(req, res) {
   // if (isValidObjectId(req.params.id)) {
   if (req.params.id) {
     try {
-      let log = await Secrets.findByIdAndDelete(req.params.id);
-      if (!log) {
+      let log = await Secrets.deleteOne({
+        _id: req.params.id,
+        userCreated: req.user._id,
+      });
+      if (log?.deletedCount === 0) {
         let response = new ResponseModel(0, "No item found!", null);
         res.json(response);
       } else {
@@ -152,12 +166,11 @@ async function deleteSecret(req, res) {
     res.status(404).json(new ResponseModel(404, "logId is not valid!", null));
   }
 }
-
-async function getLogById(req, res) {
-  if (req.body.logId) {
+async function getSecretById(req, res) {
+  if (req.params.id) {
     try {
-      let log = await Logs.findById(req.body.logId);
-      res.json(log);
+      let secret = await Secrets.findById(req.params.id);
+      res.json(secret);
     } catch (error) {
       let response = new ResponseModel(-2, error.message, error);
       res.json(response);
@@ -188,6 +201,7 @@ async function getPaging(req, res) {
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
       .populate("userId")
+      .populate("userCreated")
       .sort({
         createdTime: "desc",
       });
@@ -196,18 +210,12 @@ async function getPaging(req, res) {
         _id: item._id,
         secret: item?.secret,
         userId: item?.userId,
+        userCreated: item?.userCreated,
         comment: item?.comment,
         createdTime: item?.createdTime,
       };
-      const token = authenticator.generate(item.secret);
+      const token = authenticator.generate(item?.secret);
       resultItem.token = token;
-      const otpToken = generateOTPToken(
-        user.email,
-        user.userName,
-        item?.secret
-      );
-      const qrcode = await generateQRCode(otpToken);
-      resultItem.qrcode = qrcode;
       return resultItem;
     });
     Promise.all(result).then(async (data) => {
@@ -227,54 +235,43 @@ async function getPaging(req, res) {
     res.status(404).json(response);
   }
 }
-
-async function getLogByUserId(req, res) {
-  let pageSize = req.query.pageSize || 10;
-  let pageIndex = req.query.pageIndex || 1;
-
-  let searchObj = {};
-  if (req.query.search) {
-    searchObj = { logName: { $regex: ".*" + req.query.search + ".*" } };
-  }
-  if (req.query.userId) {
-    searchObj.user = req.query.userId;
-  }
-  if (req.query.cloudServerId) {
-    searchObj.cloudServer = req.query.cloudServerId;
-  }
-
+async function getQrCodeById(req, res) {
+  const secret = await Secrets.findById(req.params.id).populate("userCreated");
+  const otpToken = generateOTPToken(
+    secret.userCreated?.email,
+    secret.userCreated?.userName,
+    secret?.secret
+  );
+  const qrcode = await generateQRCode(otpToken);
+  res.json(qrcode);
+}
+async function updateCommentSecret(req, res) {
   try {
-    let log = await Logs.find(searchObj)
-      .skip(pageSize * pageIndex - pageSize)
-      .limit(parseInt(pageSize))
-      .sort({
-        createdTime: "desc",
-      })
-      .populate("user")
-      .populate("cloudServer");
-
-    let count = await Logs.find(searchObj).countDocuments();
-    let totalPages = Math.ceil(count / pageSize);
-    let pagedModel = new PagedModel(
-      pageIndex,
-      pageSize,
-      totalPages,
-      log,
-      count
+    let newSecret = { updatedTime: Date.now(), comment: req.body?.comment };
+    let updateSecret = await Secrets.findOneAndUpdate(
+      { _id: req.params.id },
+      newSecret
     );
-    res.json(pagedModel);
+    if (!updateSecret) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(1, "Update secret success!", newSecret);
+      res.json(response);
+    }
   } catch (error) {
+    console.log(error);
     let response = new ResponseModel(404, error.message, error);
     res.status(404).json(response);
   }
 }
-
 exports.deleteSecrets = deleteSecrets;
 exports.exportSecret = exportSecret;
 exports.importSecret = importSecret;
 exports.insertSecret = insertSecret;
-exports.updateLog = updateLog;
+exports.updateUserSecret = updateUserSecret;
 exports.deleteSecret = deleteSecret;
-exports.getLogById = getLogById;
+exports.getSecretById = getSecretById;
 exports.getPaging = getPaging;
-exports.getLogByUserId = getLogByUserId;
+exports.updateCommentSecret = updateCommentSecret;
+exports.getQrCodeById = getQrCodeById;

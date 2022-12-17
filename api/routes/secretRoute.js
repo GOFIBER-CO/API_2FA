@@ -18,13 +18,27 @@ router.post(
   middlewares.authentication,
   secretController.deleteSecrets
 );
+router.put(
+  "/updateUser/:id",
+  middlewares.authentication,
+  secretController.updateUserSecret
+);
 // router.put('/update/:id', middlewares.authentication,secretController.updateServer);
 router.delete(
   "/delete/:id",
   middlewares.authentication,
   secretController.deleteSecret
 );
-// router.post('/getById', middlewares.authentication,secretController.getServerById);
+router.get(
+  "/getById/:id",
+  middlewares.authentication,
+  secretController.getSecretById
+);
+router.get(
+  "/getQrCodeById/:id",
+  middlewares.authentication,
+  secretController.getQrCodeById
+);
 router.get(
   "/getPaging",
   middlewares.authentication,
@@ -34,6 +48,11 @@ router.get(
   "/import/:id",
   middlewares.authentication,
   secretController.importSecret
+);
+router.put(
+  "/updateComment/:id",
+  middlewares.authentication,
+  secretController.updateCommentSecret
 );
 
 module.exports = router;
