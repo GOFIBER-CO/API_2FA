@@ -338,7 +338,25 @@ async function getUserById(req, res) {
     res.sendStatus(403);
   }
 }
-
+async function getUserByEmail(req, res) {
+  if (req.body.email) {
+    try {
+      let user = await Users.findOne({ email: req.body.email });
+      console.log(user);
+      if (user === null) {
+        res.status(404).json({});
+        return;
+      }
+      let { password, secret, ...returnResult } = user._doc;
+      res.json(returnResult);
+    } catch (error) {
+      let response = new ResponseModel(-2, error.message, error);
+      res.json(response);
+    }
+  } else {
+    res.sendStatus(403);
+  }
+}
 async function deleteUser(req, res) {
   if (req.actions.includes("deleteUser")) {
     if (isValidObjectId(req.params.id)) {
@@ -527,6 +545,7 @@ exports.updateUser = updateUser;
 exports.register = register;
 exports.deleteUser = deleteUser;
 exports.getUserById = getUserById;
+exports.getUserByEmail = getUserByEmail;
 exports.getPaging = getPaging;
 exports.forgotPassword = forgotPassword;
 exports.changePassword = changePassword;

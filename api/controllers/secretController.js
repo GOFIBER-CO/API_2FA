@@ -25,20 +25,20 @@ async function insertSecret(req, res, next) {
   try {
     req.body.userId = req.user._id;
 
-    const { secret, userId, comment } = req.body;
+    const { secret, userId } = req.body;
     const secretFilter = [];
-    secret?.map((item) => {
-      if (!secretFilter?.includes(item)) {
-        secretFilter.push(item);
-      }
-    });
-    const listData = secretFilter?.map(async (item) => {
+    // secret?.map((item) => {
+    //   if (!secretFilter?.includes(item)) {
+    //     secretFilter.push(item);
+    //   }
+    // });
+    const listData = secret?.map(async (item) => {
       const result = new Secrets({
-        secret: item,
+        secret: item.secret,
         userId: [userId],
         userCreated: userId,
         createdTime: Date.now(),
-        comment,
+        comment: item.comment,
       });
       await result.save();
     });
@@ -125,9 +125,16 @@ async function deleteSecrets(req, res) {
 }
 async function updateUserSecret(req, res) {
   try {
-    let newSecret = { updatedTime: Date.now(), userId: req.body };
-    let updateSecret = await Secrets.findOneAndUpdate(
-      { _id: req.params.id },
+    console.log(req.body);
+    const { listSecret, userList } = req.body;
+    const listUser = userList.map((item) => item._id);
+
+    let newSecret = {
+      updatedTime: Date.now(),
+      $addToSet: { userId: listUser },
+    };
+    let updateSecret = await Secrets.updateMany(
+      { _id: { $in: listSecret } },
       newSecret
     );
     if (!updateSecret) {
@@ -185,16 +192,6 @@ async function getPaging(req, res) {
   let pageIndex = req.query.pageIndex || 1;
   let user = await Users.findById(req?.user?._id);
   let searchObj = { userId: req?.user?._id };
-  // if (req.query.search) {
-  //   searchObj = {
-  //     // logName: { $regex: ".*" + req.query.search + ".*" },
-  //     userId: req?.user?._id,
-  //   };
-  // } else {
-  //   searchObj = {
-  //     userId: req?.user?._id,
-  //   };
-  // }
 
   try {
     let log = await Secrets.find(searchObj)
