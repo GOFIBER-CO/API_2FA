@@ -1,62 +1,69 @@
-require('../database');
-const mongoose = require('mongoose');
+require("../database");
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-let postSchema = new Schema({
+let postSchema = new Schema(
+  {
     title: {
-        type: String,
-        required: true,
-        unique: true
+      type: String,
+      required: true,
+      // unique: true,
     },
     slug: {
-        type: String,
-        required: true,
-        unique: true
+      type: String,
+      required: true,
+      // unique: true,
     },
-    description: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    thumb:{
-        type: String
-    },
+    // description: {
+    //   type: String,
+    //   // required: false,
+    //   unique: true,
+    // },
+    // thumb: {
+    //   type: String,
+    // },
     content: {
-        type: String
+      type: String,
     },
-    menu: {
+    menu: [
+      {
         type: Schema.Types.ObjectId,
-        ref: 'Menus'
-    },
+        ref: "Menus",
+      },
+    ],
     // category: {
     //     type: Schema.Types.ObjectId,
     //     ref: 'Categories'
     // },
-    tags:[{
+    tags: [
+      {
         type: Schema.Types.ObjectId,
-        ref: 'Tags'
-    }],
+        ref: "Tags",
+      },
+    ],
     user: {
-        type: Schema.Types.ObjectId,
-        ref: 'Users'
+      type: Schema.Types.ObjectId,
+      ref: "Users",
     },
-    numberOfReader:{
-        type: Number,
-        default: 0
-    },
-    status:{
-        type: Number,
-        default: 1
+    // numberOfReader:{
+    //     type: Number,
+    //     default: 0
+    // },
+    status: {
+      type: Number,
+      default: 1,
     },
     createdTime: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
     updatedTime: {
-        type: Date
-    }
-}, { versionKey: false });
+      type: Date,
+    },
+  },
+  { versionKey: false }
+);
 
-postSchema.index({'title': 'text'});
+postSchema.index({ title: "text" });
 
-module.exports = mongoose.model('Posts', postSchema)
+module.exports = mongoose.model("Posts", postSchema);
