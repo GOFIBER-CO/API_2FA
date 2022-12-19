@@ -39,7 +39,8 @@ async function createMenu(req, res) {
 }
 
 async function updateMenu(req, res) {
-  if (req.actions.includes("updateMenu")) {
+  console.log(`req.params`,req.params);
+  // if (req.actions.includes("updateMenu")) {
     try {
       let newMenu = { updatedTime: Date.now(), user: req.userId, ...req.body };
       if (newMenu.parent) {
@@ -72,9 +73,9 @@ async function updateMenu(req, res) {
       let response = new ResponseModel(404, error.message, error);
       res.status(404).json(response);
     }
-  } else {
-    res.sendStatus(403);
-  }
+  // } else {
+  //   res.sendStatus(403);
+  // }
 }
 
 async function deleteMenu(req, res) {

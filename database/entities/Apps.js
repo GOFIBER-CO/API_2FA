@@ -50,4 +50,4 @@ let menuSchema = new Schema(
 
 menuSchema.index({ menuName: "text" });
 
-module.exports = mongoose.model("Menus", menuSchema);
+module.exports = mongoose.model("Apps", menuSchema);
