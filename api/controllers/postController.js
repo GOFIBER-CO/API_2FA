@@ -8,26 +8,32 @@ const PagedModel = require("../models/PagedModel");
 const ResponseModel = require("../models/ResponseModel");
 
 async function createPost(req, res) {
-  if (req.actions.includes("createPost")) {
-    try {
-      let post = new Posts(req.body);
-      post.createdTime = Date.now();
-      await post.save((err, newPost) => {
-        if (err) {
-          let response = new ResponseModel(-2, err.message, err);
-          res.json(response);
-        } else {
-          let response = new ResponseModel(1, "Create post success!", newPost);
-          res.json(response);
-        }
-      });
-    } catch (error) {
-      let response = new ResponseModel(404, error.message, error);
-      res.status(404).json(response);
-    }
-  } else {
-    res.sendStatus(403);
+  console.log(`data`, req.body);
+  // if (req.actions.includes("createPost")) {
+  try {
+    let post = new Posts(req.body);
+
+    post.createdTime = Date.now();
+    // console.log('post: ', post);
+
+    await post.save((err, newPost) => {
+      if (err) {
+        let response = new ResponseModel(-2, err.message, err);
+        res.json(response);
+      } else {
+        let response = new ResponseModel(1, "Create post success!", newPost);
+        console.log("response: ", response);
+
+        res.json(response);
+      }
+    });
+  } catch (error) {
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
   }
+  // } else {
+  //   res.sendStatus(403);
+  // }
 }
 
 async function updatePost(req, res) {
@@ -166,13 +172,15 @@ async function getPagingPostsV2(req, res) {
     let posts = await Posts.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
+      .select("title")
+      .select("slug")
+      .select("status")
       .populate("tags")
       .populate("user")
       .populate("menu")
-      .select("-content")
-      
-   
-      .exec()
+      .select("content")
+
+      .exec();
     let menuList = await Menus.find({});
 
     posts = posts.map((post) => {
@@ -190,7 +198,7 @@ async function getPagingPostsV2(req, res) {
         return post;
       }
     });
-     posts = posts.sort((a, b) => {
+    posts = posts.sort((a, b) => {
       return b.createdTime - a.createdTime;
     });
     // let count = await Posts.find(searchObj).countDocuments();
