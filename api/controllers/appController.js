@@ -5,27 +5,27 @@ const ResponseModel = require("../models/ResponseModel");
 const { isValidObjectId, Types } = require("mongoose");
 
 async function createApp(req, res) {
-  if (req.actions.includes("createApp")) {
-    try {
-      let menu = new Apps(req.body);
-      menu.createdTime = Date.now();
-      menu.user = req.userId;
-      await menu.save((err, newApp) => {
-        if (err) {
-          let response = new ResponseModel(-2, err.message, err);
-          res.json(response);
-        } else {
-          let response = new ResponseModel(1, "Create app success!", newApp);
-          res.json(response);
-        }
-      });
-    } catch (error) {
-      let response = new ResponseModel(404, error.message, error);
-      res.status(404).json(response);
-    }
-  } else {
-    res.sendStatus(403);
+  // if (req.actions.includes("createApp")) {
+  try {
+    let menu = new Apps(req.body);
+    menu.createdTime = Date.now();
+    menu.user = req.userId;
+    await menu.save((err, newApp) => {
+      if (err) {
+        let response = new ResponseModel(-2, err.message, err);
+        res.json(response);
+      } else {
+        let response = new ResponseModel(1, "Create app success!", newApp);
+        res.json(response);
+      }
+    });
+  } catch (error) {
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
   }
+  // } else {
+  //   res.sendStatus(403);
+  // }
 }
 
 async function updateApp(req, res) {
@@ -90,9 +90,9 @@ async function getPagingApps(req, res) {
     let apps = await Apps.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
-      .populate("user")
+      // .populate("user")
       .sort({ createdTime: "desc" });
-
+    console.log(apps);
     let count = await Apps.find(searchObj).countDocuments();
     let totalPages = Math.ceil(count / pageSize);
     let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, apps);

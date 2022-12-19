@@ -2,32 +2,17 @@ require("../database");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-let menuSchema = new Schema(
+let appSchema = new Schema(
   {
-    menuName: {
+    appName: {
       type: String,
       required: true,
     },
-    menuSlug: {
-      type: String,
-      required: true,
-    },
-    menuIcon: {
+    appIcon: {
       type: String,
     },
-    parent: {
-      type: Schema.Types.ObjectId,
-      ref: "Menus",
-      default: null,
-    },
-    children: [
-      {
-        type: Object,
-      },
-    ],
-    menuOrder: {
-      type: Number,
-      default: 0,
+    appContent: {
+      type: String,
     },
     createdTime: {
       type: Date,
@@ -36,18 +21,38 @@ let menuSchema = new Schema(
     updatedTime: {
       type: Date,
     },
-    isShow: {
-      type: Boolean,
-      default: true,
-    },
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "Users",
-    },
+    // menuSlug: {
+    //   type: String,
+    //   required: true,
+    // },
+
+    // parent: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: "Menus",
+    //   default: null,
+    // },
+    // children: [
+    //   {
+    //     type: Object,
+    //   },
+    // ],
+    // menuOrder: {
+    //   type: Number,
+    //   default: 0,
+    // },
+
+    // isShow: {
+    //   type: Boolean,
+    //   default: true,
+    // },
+    // user: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: "Users",
+    // },
   },
   { versionKey: false }
 );
 
-menuSchema.index({ menuName: "text" });
+appSchema.index({ appName: "text" });
 
-module.exports = mongoose.model("Apps", menuSchema);
+module.exports = mongoose.model("Apps", appSchema);
