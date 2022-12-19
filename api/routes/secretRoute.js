@@ -19,7 +19,7 @@ router.post(
   secretController.deleteSecrets
 );
 router.put(
-  "/updateUser/:id",
+  "/updateUser",
   middlewares.authentication,
   secretController.updateUserSecret
 );

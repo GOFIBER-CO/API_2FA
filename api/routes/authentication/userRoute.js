@@ -13,6 +13,11 @@ router.put(
 );
 router.delete("/delete/:id", middlewares.authorize, userController.deleteUser);
 router.post("/getById", middlewares.authentication, userController.getUserById);
+router.post(
+  "/getByEmail",
+  middlewares.authentication,
+  userController.getUserByEmail
+);
 router.get("/getPaging", middlewares.authorize, userController.getPaging);
 router.post(
   "/forgotPassword",
