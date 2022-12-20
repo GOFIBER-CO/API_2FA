@@ -192,6 +192,9 @@ async function getPaging(req, res) {
   let pageIndex = req.query.pageIndex || 1;
   let user = await Users.findById(req?.user?._id);
   let searchObj = { userId: req?.user?._id };
+  if (req.query.search) {
+    searchObj = { secret: { $regex: ".*" + req.query.search + ".*" },userId: req?.user?._id  };
+  }
 
   try {
     let log = await Secrets.find(searchObj)
