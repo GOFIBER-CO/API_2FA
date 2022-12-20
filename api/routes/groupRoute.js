@@ -3,7 +3,7 @@ const router = express.Router();
 const groupController = require("../controllers/groupController");
 const middlewares = require("./middlewares");
 
-router.post("/insert", middlewares.authorize, groupController.createGroup);
+router.post("/insert", middlewares.authentication, groupController.createGroup);
 router.put("/update/:id", middlewares.authorize, groupController.updateGroup);
 router.delete(
   "/delete/:id",

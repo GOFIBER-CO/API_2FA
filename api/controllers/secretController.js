@@ -202,7 +202,7 @@ async function getPaging(req, res) {
       .sort({
         createdTime: "desc",
       });
-    const result = log.map(async (item) => {
+    const result = log?.map(async (item) => {
       let resultItem = {
         _id: item._id,
         secret: item?.secret,

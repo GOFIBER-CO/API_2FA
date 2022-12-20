@@ -6,6 +6,9 @@ const ResponseModel = require("../models/ResponseModel");
 async function createGroup(req, res) {
   //   if (req.actions.includes("createTag")) {
   try {
+    console.log(req.user);
+    req.body.userId = [req.user._id];
+    req.body.userCreated = req.user._id;
     let group = new Group(req.body);
     group.createdTime = Date.now();
     group.save((err, newGroup) => {
@@ -18,6 +21,7 @@ async function createGroup(req, res) {
       }
     });
   } catch (error) {
+    console.log(error);
     let response = new ResponseModel(404, error.message, error);
     res.status(404).json(response);
   }
@@ -82,7 +86,7 @@ async function getPagingGroups(req, res) {
 
   let searchObj = {};
   if (req.query.search) {
-    searchObj = { tagName: { $regex: ".*" + req.query.search + ".*" } };
+    searchObj = { nameGroup: { $regex: ".*" + req.query.search + ".*" } };
   }
   try {
     let groups = await Group.find(searchObj)

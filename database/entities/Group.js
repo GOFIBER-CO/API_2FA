@@ -4,9 +4,12 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 let GroupSchema = new Schema({
-  name: {
+  nameGroup: {
     type: String,
     required: true,
+  },
+  comment: {
+    type: String,
   },
   userId: [
     {
