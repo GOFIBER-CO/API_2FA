@@ -8,6 +8,7 @@ const qrcode = require("qrcode");
 const Users = require("../../database/entities/authentication/Users");
 const Export = require("../../database/entities/Export");
 const Secret = require("../../database/entities/Secret");
+const Group = require("../../database/entities/Group");
 const generateOTPToken = (username, serviceName, secret) => {
   return authenticator.keyuri(username, serviceName, secret);
 };
@@ -186,6 +187,17 @@ async function getSecretById(req, res) {
     res.status(404).json(new ResponseModel(404, "logId is not valid!", null));
   }
 }
+async function getSecretByGroup(req, res) {
+  try {
+    const group = await Group.find({ userId: req.user._id });
+    const listGroupId = group?.map((item) => item._id);
+    let secret = await Secrets.find({ group: { $in: listGroupId } });
+    res.json(secret);
+  } catch (error) {
+    let response = new ResponseModel(-2, error.message, error);
+    res.json(response);
+  }
+}
 
 async function getPaging(req, res) {
   let pageSize = req.query.pageSize || 10;
@@ -272,3 +284,4 @@ exports.getSecretById = getSecretById;
 exports.getPaging = getPaging;
 exports.updateCommentSecret = updateCommentSecret;
 exports.getQrCodeById = getQrCodeById;
+exports.getSecretByGroup = getSecretByGroup;

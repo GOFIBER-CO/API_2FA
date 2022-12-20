@@ -31,18 +31,39 @@ async function createGroup(req, res) {
 }
 
 async function updateGroup(req, res) {
-  if (req.actions.includes("updateGroup")) {
+  // if (req.actions.includes("updateGroup")) {
+  try {
+    let newGroup = { updatedTime: Date.now(), user: req.userId, ...req.body };
+    let updatedGroup = await Group.findOneAndUpdate(
+      { _id: req.params.id },
+      newGroup
+    );
+    if (!updatedGroup) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(1, "Update Group success!", newGroup);
+      res.json(response);
+    }
+  } catch (error) {
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+  // } else {
+  //   res.sendStatus(403);
+  // }
+}
+
+async function deleteGroup(req, res) {
+  // if (req.actions.includes("deleteGroup")) {
+  if (isValidObjectId(req.params.id)) {
     try {
-      let newGroup = { updatedTime: Date.now(), user: req.userId, ...req.body };
-      let updatedGroup = await Group.findOneAndUpdate(
-        { _id: req.params.id },
-        newGroup
-      );
-      if (!updatedGroup) {
+      let group = await Group.findByIdAndDelete(req.params.id);
+      if (!group) {
         let response = new ResponseModel(0, "No item found!", null);
         res.json(response);
       } else {
-        let response = new ResponseModel(1, "Update Group success!", newGroup);
+        let response = new ResponseModel(1, "Delete group success!", null);
         res.json(response);
       }
     } catch (error) {
@@ -50,34 +71,11 @@ async function updateGroup(req, res) {
       res.status(404).json(response);
     }
   } else {
-    res.sendStatus(403);
+    res.status(404).json(new ResponseModel(404, "GroupId is not valid!", null));
   }
-}
-
-async function deleteGroup(req, res) {
-  if (req.actions.includes("deleteGroup")) {
-    if (isValidObjectId(req.params.id)) {
-      try {
-        let group = await Group.findByIdAndDelete(req.params.id);
-        if (!group) {
-          let response = new ResponseModel(0, "No item found!", null);
-          res.json(response);
-        } else {
-          let response = new ResponseModel(1, "Delete group success!", null);
-          res.json(response);
-        }
-      } catch (error) {
-        let response = new ResponseModel(404, error.message, error);
-        res.status(404).json(response);
-      }
-    } else {
-      res
-        .status(404)
-        .json(new ResponseModel(404, "GroupId is not valid!", null));
-    }
-  } else {
-    res.sendStatus(403);
-  }
+  // } else {
+  //   res.sendStatus(403);
+  // }
 }
 
 async function getPagingGroups(req, res) {
@@ -97,7 +95,13 @@ async function getPagingGroups(req, res) {
       });
     let count = await Group.find(searchObj).countDocuments();
     let totalPages = Math.ceil(count / pageSize);
-    let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, groups);
+    let pagedModel = new PagedModel(
+      pageIndex,
+      pageSize,
+      totalPages,
+      groups,
+      count
+    );
     res.json(pagedModel);
   } catch (error) {
     let response = new ResponseModel(404, error.message, error);
@@ -118,8 +122,69 @@ async function getGroupById(req, res) {
   }
 }
 
+async function getGroupByUser(req, res) {
+  try {
+    let group = await Group.find({ userId: req.user._id });
+    res.json(group);
+  } catch (error) {
+    res.status(404).json(404, error.message, error);
+  }
+}
+async function deleteMultiGroup(req, res) {
+  try {
+    const deleteMulti = await Group.deleteMany({
+      _id: req.body,
+      userCreated: req.user._id,
+    });
+    if (deleteMulti.deletedCount === 0) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Delete secret success!",
+        deleteMulti
+      );
+      res.json(response);
+    }
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+
+async function updateUserGroup(req, res) {
+  try {
+    const { listGroup, userList } = req.body;
+    const listUser = userList.map((item) => item._id);
+
+    let newGroup = {
+      updatedTime: Date.now(),
+      $addToSet: { userId: listUser },
+    };
+    let updateSecret = await Group.updateMany(
+      { _id: { $in: listGroup } },
+      newGroup
+    );
+    if (!updateSecret) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(1, "Update secret success!", newGroup);
+      res.json(response);
+    }
+  } catch (error) {
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+
 exports.createGroup = createGroup;
 exports.updateGroup = updateGroup;
 exports.deleteGroup = deleteGroup;
 exports.getPagingGroups = getPagingGroups;
 exports.getGroupById = getGroupById;
+exports.getGroupByUser = getGroupByUser;
+exports.deleteMultiGroup = deleteMultiGroup;
+exports.updateUserGroup = updateUserGroup;

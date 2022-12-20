@@ -7,6 +7,7 @@ let GroupSchema = new Schema({
   nameGroup: {
     type: String,
     required: true,
+    unique: true,
   },
   comment: {
     type: String,
