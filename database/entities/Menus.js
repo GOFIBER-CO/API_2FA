@@ -1,48 +1,53 @@
-require('../database');
-const mongoose = require('mongoose');
+require("../database");
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-let menuSchema = new Schema({
-    menuName:{
-        type: String,
-        required: true,
+let menuSchema = new Schema(
+  {
+    menuName: {
+      type: String,
+      required: true,
     },
-    menuSlug:{
-        type: String,
-        required: true,
+    menuSlug: {
+      type: String,
+      required: true,
     },
     menuIcon: {
-        type: String
+      type: String,
     },
     parent: {
-        type: Schema.Types.ObjectId,
-        ref: 'Menus',
-        default: null
+      type: Schema.Types.ObjectId,
+      ref: "Menus",
+      default: null,
     },
-    children: [{
-        type: Object
-    }],
+    children: [
+      {
+        type: Object,
+      },
+    ],
     menuOrder: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
     createdTime: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
     updatedTime: {
-        type: Date
+      type: Date,
     },
     isShow: {
-        type: Boolean,
-        default: true
+      type: Boolean,
+      default: true,
     },
     user: {
-        type: Schema.Types.ObjectId,
-        ref: 'Users'
-    }
-}, { versionKey: false });
+      type: Schema.Types.ObjectId,
+      ref: "Users",
+    },
+  },
+  { versionKey: false }
+);
 
-menuSchema.index({'menuName': 'text'});
+menuSchema.index({ menuName: "text" });
 
-module.exports = mongoose.model('Menus', menuSchema)
+module.exports = mongoose.model("Menus", menuSchema);

@@ -2,32 +2,21 @@ require("../database");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-let menuSchema = new Schema(
+let appSchema = new Schema(
   {
-    menuName: {
+    appName: {
       type: String,
       required: true,
     },
-    menuSlug: {
+    appSlug: {
       type: String,
       required: true,
     },
-    menuIcon: {
+    appIcon: {
       type: String,
     },
-    parent: {
-      type: Schema.Types.ObjectId,
-      ref: "Menus",
-      default: null,
-    },
-    children: [
-      {
-        type: Object,
-      },
-    ],
-    menuOrder: {
-      type: Number,
-      default: 0,
+    content: {
+      type: String,
     },
     createdTime: {
       type: Date,
@@ -48,6 +37,4 @@ let menuSchema = new Schema(
   { versionKey: false }
 );
 
-menuSchema.index({ menuName: "text" });
-
-module.exports = mongoose.model("Menus", menuSchema);
+module.exports = mongoose.model("Apps", appSchema);

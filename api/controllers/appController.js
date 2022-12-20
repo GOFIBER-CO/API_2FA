@@ -5,27 +5,27 @@ const ResponseModel = require("../models/ResponseModel");
 const { isValidObjectId, Types } = require("mongoose");
 
 async function createApp(req, res) {
-  if (req.actions.includes("createApp")) {
-    try {
-      let menu = new Apps(req.body);
-      menu.createdTime = Date.now();
-      menu.user = req.userId;
-      await menu.save((err, newApp) => {
-        if (err) {
-          let response = new ResponseModel(-2, err.message, err);
-          res.json(response);
-        } else {
-          let response = new ResponseModel(1, "Create app success!", newApp);
-          res.json(response);
-        }
-      });
-    } catch (error) {
-      let response = new ResponseModel(404, error.message, error);
-      res.status(404).json(response);
-    }
-  } else {
-    res.sendStatus(403);
+  // if (req.actions.includes("createApp")) {
+  try {
+    let menu = new Apps(req.body);
+    menu.createdTime = Date.now();
+    menu.user = req.userId;
+    menu.save((err, newApp) => {
+      if (err) {
+        let response = new ResponseModel(-2, err.message, err);
+        res.json(response);
+      } else {
+        let response = new ResponseModel(1, "Create app success!", newApp);
+        res.json(response);
+      }
+    });
+  } catch (error) {
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
   }
+  // } else {
+  //   res.sendStatus(403);
+  // }
 }
 
 async function updateApp(req, res) {
@@ -53,27 +53,27 @@ async function updateApp(req, res) {
 }
 
 async function deleteApp(req, res) {
-  if (req.actions.includes("deleteApp")) {
-    if (isValidObjectId(req.params.id)) {
-      try {
-        let app = await Apps.findByIdAndDelete(req.params.id);
-        if (!app) {
-          let response = new ResponseModel(0, "No item found!", null);
-          res.json(response);
-        } else {
-          let response = new ResponseModel(1, "Delete app success!", null);
-          res.json(response);
-        }
-      } catch (error) {
-        let response = new ResponseModel(404, error.message, error);
-        res.status(404).json(response);
+  // if (req.actions.includes("deleteApp")) {
+  if (isValidObjectId(req.params.id)) {
+    try {
+      let app = await Apps.findByIdAndDelete(req.params.id);
+      if (!app) {
+        let response = new ResponseModel(0, "No item found!", null);
+        res.json(response);
+      } else {
+        let response = new ResponseModel(1, "Delete app success!", null);
+        res.json(response);
       }
-    } else {
-      res.status(404).json(new ResponseModel(404, "AppId is not valid!", null));
+    } catch (error) {
+      let response = new ResponseModel(404, error.message, error);
+      res.status(404).json(response);
     }
   } else {
-    res.sendStatus(403);
+    res.status(404).json(new ResponseModel(404, "AppId is not valid!", null));
   }
+  // } else {
+  //   res.sendStatus(403);
+  // }
 }
 
 async function getPagingApps(req, res) {
@@ -82,7 +82,7 @@ async function getPagingApps(req, res) {
   let searchObj = {};
   if (req.query.search) {
     searchObj = {
-      menuName: { $regex: ".*" + req.query.search + ".*" },
+      appName: { $regex: ".*" + req.query.search + ".*" },
     };
   }
 

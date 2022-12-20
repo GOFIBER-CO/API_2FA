@@ -9,7 +9,7 @@ async function createFeedback(req, res) {
     let feedback = new Feedback(req.body);
     feedback.createdTime = Date.now();
     console.log("feedback: ", feedback);
-    await feedback.save((err, newMenu) => {
+    feedback.save((err, newMenu) => {
       if (err) {
         let response = new ResponseModel(-2, err.message, err);
         res.json(response);
@@ -23,6 +23,7 @@ async function createFeedback(req, res) {
       }
     });
   } catch (error) {
+    console.log(error);
     let response = new ResponseModel(404, error.message, error);
     res.status(404).json(response);
   }

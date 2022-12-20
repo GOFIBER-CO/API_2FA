@@ -17,6 +17,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const port = process.env.PORT;
 const userRoute = require("./api/routes/authentication/userRoute");
 const secretRouter = require("./api/routes/secretRoute");
+const groupRouter = require("./api/routes/groupRoute");
 const roleRoute = require("./api/routes/roleRoute");
 const actionRoute = require("./api/routes/actionRoute");
 const roleActionRoute = require("./api/routes/roleActionRoute");
@@ -46,7 +47,7 @@ app.use("/api/schema", schemaRoute);
 app.use("/api/user", userRoute);
 
 app.use("/api/secret", secretRouter);
-
+app.use("/api/group", groupRouter);
 const server = require("http").Server(app);
 
 server.listen(port, (req, res) => {
