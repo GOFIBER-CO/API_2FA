@@ -1,5 +1,5 @@
 var mongoose = require("mongoose");
-mongoose.set('strictQuery', false);
+mongoose.set("strictQuery", false);
 class Database {
   constructor() {
     this._connect();

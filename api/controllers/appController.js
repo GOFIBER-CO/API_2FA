@@ -90,9 +90,9 @@ async function getPagingApps(req, res) {
     let apps = await Apps.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
-      .populate("user")
+      // .populate("user")
       .sort({ createdTime: "desc" });
-
+    console.log(apps);
     let count = await Apps.find(searchObj).countDocuments();
     let totalPages = Math.ceil(count / pageSize);
     let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, apps);
