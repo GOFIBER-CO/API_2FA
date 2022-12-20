@@ -54,5 +54,9 @@ router.put(
   middlewares.authentication,
   secretController.updateCommentSecret
 );
-
+router.get(
+  "/secretByGroup",
+  middlewares.authentication,
+  secretController.getSecretByGroup
+);
 module.exports = router;
