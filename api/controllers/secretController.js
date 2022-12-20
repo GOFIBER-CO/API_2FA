@@ -23,6 +23,7 @@ const generateQRCode = async (otpAuth) => {
   }
 };
 async function insertSecret(req, res, next) {
+  console.log(req.body);
   try {
     req.body.userId = req.user._id;
 
@@ -37,6 +38,7 @@ async function insertSecret(req, res, next) {
       const result = new Secrets({
         secret: item.secret,
         userId: [userId],
+        groupId: item.group,
         userCreated: userId,
         createdTime: Date.now(),
         comment: item.comment,
@@ -189,10 +191,49 @@ async function getSecretById(req, res) {
 }
 async function getSecretByGroup(req, res) {
   try {
+    let pageSize = req.query.pageSize || 10;
+    let pageIndex = req.query.pageIndex || 1;
     const group = await Group.find({ userId: req.user._id });
+    console.log(group)
     const listGroupId = group?.map((item) => item._id);
-    let secret = await Secrets.find({ group: { $in: listGroupId } });
-    res.json(secret);
+    let searchObj = { groupId: { $in: listGroupId } };
+  if (req.query.search) {
+    searchObj = {
+      secret: { $regex: ".*" + req.query.search + ".*" },
+      groupId: { $in: listGroupId },
+    };
+  }
+    let secret = await Secrets.find({ groupId: { $in: listGroupId } }).populate("userId")
+    .populate("userCreated")
+    .populate("groupId");
+    const result = secret?.map(async (item) => {
+      let resultItem = {
+        _id: item._id,
+        secret: item?.secret,
+        userId: item?.userId,
+        userCreated: item?.userCreated,
+        comment: item?.comment,
+        createdTime: item?.createdTime,
+        groupId: item?.groupId,
+      };
+      const token = authenticator.generate(item?.secret);
+      resultItem.token = token;
+      return resultItem;
+    });
+    Promise.all(result)
+      .then(async (data) => {
+        let count = await Secrets.find(searchObj).countDocuments();
+        let totalPages = Math.ceil(count / pageSize);
+        let pagedModel = new PagedModel(
+          pageIndex,
+          pageSize,
+          totalPages,
+          data,
+          count
+        );
+        res.json(pagedModel);
+      })
+      .catch((err) => console.log(err));
   } catch (error) {
     let response = new ResponseModel(-2, error.message, error);
     res.json(response);
@@ -205,7 +246,10 @@ async function getPaging(req, res) {
   let user = await Users.findById(req?.user?._id);
   let searchObj = { userId: req?.user?._id };
   if (req.query.search) {
-    searchObj = { secret: { $regex: ".*" + req.query.search + ".*" },userId: req?.user?._id  };
+    searchObj = {
+      secret: { $regex: ".*" + req.query.search + ".*" },
+      userId: req?.user?._id,
+    };
   }
 
   try {
@@ -214,6 +258,7 @@ async function getPaging(req, res) {
       .limit(parseInt(pageSize))
       .populate("userId")
       .populate("userCreated")
+      .populate("groupId")
       .sort({
         createdTime: "desc",
       });
@@ -225,23 +270,26 @@ async function getPaging(req, res) {
         userCreated: item?.userCreated,
         comment: item?.comment,
         createdTime: item?.createdTime,
+        group: item?.groupId,
       };
       const token = authenticator.generate(item?.secret);
       resultItem.token = token;
       return resultItem;
     });
-    Promise.all(result).then(async (data) => {
-      let count = await Secrets.find(searchObj).countDocuments();
-      let totalPages = Math.ceil(count / pageSize);
-      let pagedModel = new PagedModel(
-        pageIndex,
-        pageSize,
-        totalPages,
-        data,
-        count
-      );
-      res.json(pagedModel);
-    });
+    Promise.all(result)
+      .then(async (data) => {
+        let count = await Secrets.find(searchObj).countDocuments();
+        let totalPages = Math.ceil(count / pageSize);
+        let pagedModel = new PagedModel(
+          pageIndex,
+          pageSize,
+          totalPages,
+          data,
+          count
+        );
+        res.json(pagedModel);
+      })
+      .catch((err) => console.log(err));
   } catch (error) {
     let response = new ResponseModel(404, error.message, error);
     res.status(404).json(response);
@@ -258,10 +306,15 @@ async function getQrCodeById(req, res) {
   res.json(qrcode);
 }
 async function updateCommentSecret(req, res) {
+  // console.log(req.body);
   try {
-    let newSecret = { updatedTime: Date.now(), comment: req.body?.comment };
+    let newSecret = {
+      updatedTime: Date.now(),
+      comment: req.body?.comment,
+      groupId: req.body?.groupId,
+    };
     let updateSecret = await Secrets.findOneAndUpdate(
-      { _id: req.params.id },
+      { _id: req.params.id,userCreated:req.user?._id },
       newSecret
     );
     if (!updateSecret) {
