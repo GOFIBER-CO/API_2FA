@@ -30,6 +30,8 @@ const menuRoute = require("./api/routes/menuRoute");
 const feedbackRoute = require("./api/routes/feedbackRoute");
 const shortCodeRoute = require("./api/routes/shortCodeRoute");
 const schemaRoute = require("./api/routes/schemaRoute");
+const profileRoute = require("./api/routes/profileRoute");
+
 // const appRoute = require("./api/routes/appRoute");
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
@@ -47,6 +49,7 @@ app.use("/api/shortcode", shortCodeRoute);
 app.use("/api/schema", schemaRoute);
 app.use("/api/feedback", feedbackRoute);
 app.use("/api/app", appRoute);
+app.use("/api/profile", profileRoute);
 
 //import routes
 app.use("/api/user", userRoute);

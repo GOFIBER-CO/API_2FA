@@ -190,22 +190,36 @@ async function getSecretById(req, res) {
   }
 }
 async function getSecretByGroup(req, res) {
+  console.log(req.query);
   try {
+    // const search = req.query.search || '';
     let pageSize = req.query.pageSize || 10;
     let pageIndex = req.query.pageIndex || 1;
     const group = await Group.find({ userId: req.user._id });
-    console.log(group)
+    console.log(`group`,group)
     const listGroupId = group?.map((item) => item._id);
-    let searchObj = { groupId: { $in: listGroupId } };
+    let searchObj = { 
+      groupId: { $in: listGroupId },
+     };
   if (req.query.search) {
+    console.log(`co search`);
     searchObj = {
       secret: { $regex: ".*" + req.query.search + ".*" },
       groupId: { $in: listGroupId },
     };
   }
-    let secret = await Secrets.find({ groupId: { $in: listGroupId } }).populate("userId")
+    let secret = await Secrets.find({ 
+      groupId: { $in: listGroupId },
+      secret:{ $regex: ".*" + req.query.search + ".*" }
+
+    })
+    .sort({
+      createdTime: "desc",
+    })
+    .populate("userId")
     .populate("userCreated")
     .populate("groupId");
+    console.log('secret: ', secret);
     const result = secret?.map(async (item) => {
       let resultItem = {
         _id: item._id,
