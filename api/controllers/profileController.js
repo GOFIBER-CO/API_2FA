@@ -9,6 +9,13 @@ async function createProfile(req, res) {
   try {
     let menu = new Menus(req.body);
     menu.createdTime = Date.now();
+    menu.updatedTime=Date.now()
+    menu.lastTimeOpen=Date.now()
+
+    //cộng 31 ngày từ khi tạo
+    const date = new Date();
+    date.setDate(date.getDate() + 31);
+    menu.durationTime=date
     //   menu.user = req.userId;
     //   if (menu.parent) {
     //     let menuCheckUnique = await Menus.findOne({
@@ -105,15 +112,17 @@ async function deleteProfile(req, res) {
 }
 
 async function getPagingProfile(req, res) {
+  console.log(req.query);
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
   console.log(req.query.search);
   let searchObj = {};
   if (req.query.search) {
     searchObj = {
-      menuName: { $regex: ".*" + req.query.search + ".*" },
+      name: { $regex: ".*" + req.query.search + ".*" },
     };
   }
+  console.log('searchObj: ', searchObj);
 
   try {
     let menus = await Menus.find(searchObj)

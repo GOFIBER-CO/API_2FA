@@ -19,7 +19,7 @@ let profileSchema = new Schema(
       version: { type: String, default: "version default" },
       browser: { type: String, default: "browser default" },
       comment: { type: String, default: null },
-      autoRenew: { type: Boolean, default: true },
+      isAutoRenew: { type: Boolean, default: true },
     },
     netWork: {
       proxy: { type: String, default: "proxy default" },
@@ -35,12 +35,13 @@ let profileSchema = new Schema(
 
     // browser: { type: String, default: "browser default" },
     advances: {
+      userAgent: { type: String, default: "userAgent default" },
       language: { type: String, default: "language default" },
       sizeDisplay: { type: String, default: "screenSize default" },
       core: { type: Number, default: 2 },
       hardDrive: { type: String, default: "hardDrive default" },
       ram: { type: Number, default: 2 },
-      follow: {
+      isBlockFollow: {
         type: Boolean,
         default: false,
       },
@@ -58,37 +59,26 @@ let profileSchema = new Schema(
         type: Number,
         default: 0,
       },
-      disturbSound: {
-        type: Boolean,
-        default: false,
-      },
-      disturbPicture: {
-        type: Boolean,
-        default: false,
-      },
-      webGL: {
-        type: Boolean,
-        default: false,
-      },
+      disturbSound: { type: String, default: "disturbSound default" },
+      disturbPicture: { type: String, default: "disturbPicture default" },
+      webGL: { type: String, default: "webGL default" },
       //
       supplierCard: { type: String, default: "cardSupplier default" },
       card: { type: String, default: "cardScreen default" },
+      websiteStarted: { type: String, default: "WebsiteStart default" },
+      port: { type: String, default: "controlPort default" },
       //
       options: {
-        saveInfoWebsite: { type: Boolean, default: true },
-        saveExtensionInfo: { type: Boolean, default: true },
-        saveOpeningTab: { type: Boolean, default: true },
-        saveBookmarksBar: { type: Boolean, default: true },
-        saveOpenedWebsite: { type: Boolean, default: true },
-        saveEnteredPassword: { type: Boolean, default: true },
-        saveDiary: { type: Boolean, default: true },
-        debugMode: { type: Boolean, default: true },
-        allowPlugins: { type: Boolean, default: true },
+        isSaveInfoWebsite: { type: Boolean, default: true },
+        isSaveExtensionInfo: { type: Boolean, default: true },
+        isSaveOpeningTab: { type: Boolean, default: true },
+        isSaveBookmarksBar: { type: Boolean, default: true },
+        isSaveOpenedWebsite: { type: Boolean, default: true },
+        isSaveEnteredPassword: { type: Boolean, default: true },
+        isSaveDiary: { type: Boolean, default: true },
+        isDebugMode: { type: Boolean, default: true },
+        isAllowPlugins: { type: Boolean, default: true },
       },
-      //
-      websiteStarted: { type: String, default: "WebsiteStart default" },
-      controlPort: { type: String, default: "controlPort default" },
-      //
     },
     createdTime: {
       type: Date,
@@ -97,6 +87,14 @@ let profileSchema = new Schema(
     updatedTime: {
       type: Date,
     },
+    durationTime:{
+      type:Date,
+      
+    },
+    lastTimeOpen:{
+      type: Date,
+      default: Date.now,
+    }
     // hardWare: { type: String, default: "ramNumber default" },
   },
 
