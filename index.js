@@ -18,7 +18,7 @@ const port = process.env.PORT;
 const userRoute = require("./api/routes/authentication/userRoute");
 const secretRouter = require("./api/routes/secretRoute");
 const groupRouter = require("./api/routes/groupRoute");
-const profileRouter = require("./api/routes/profileRouter");
+const groupProfileRouter = require("./api/routes/groupProfileRouter");
 const roleRoute = require("./api/routes/roleRoute");
 const actionRoute = require("./api/routes/actionRoute");
 const roleActionRoute = require("./api/routes/roleActionRoute");
@@ -54,7 +54,8 @@ app.use("/api/user", userRoute);
 
 app.use("/api/secret", secretRouter);
 app.use("/api/group", groupRouter);
-app.use("/api/profile", profileRouter);
+//Group profile
+app.use("/api/group-profile", groupProfileRouter);
 const server = require("http").Server(app);
 
 server.listen(port, (req, res) => {
