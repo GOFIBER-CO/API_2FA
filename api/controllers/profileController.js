@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const Menus = require("../../database/entities/Profile");
 const PagedModel = require("../models/PagedModel");
 const ResponseModel = require("../models/ResponseModel");
@@ -93,72 +92,10 @@ async function deleteProfile(req, res) {
         let response = new ResponseModel(1, "Delete menu success!", null);
         res.json(response);
       }
-=======
-// const { isValidObjectId } = require("mongoose");
-const Profile = require("../../database/entities/GroupProfile");
-const PagedModel = require("../models/PagedModel");
-const ResponseModel = require("../models/ResponseModel");
-
-
-async function createProfile(req, res) {
-    //   if (req.actions.includes("createTag")) {
-    try {
-    //   console.log(req.user);
-    //   req.body.userId = [req.user._id];
-      req.body.userCreated = req.user._id;
-      let profile = new Profile(req.body);
-      profile.createdTime = Date.now();
-      profile.save((err, newProfile) => {
-        if (err) {
-          let response = new ResponseModel(-2, err.message, err);
-          return res.json(response);
-        } else {
-          let response = new ResponseModel(1, "Create profile success!", newProfile);
-          return res.json(response);
-        }
-      });
-    } catch (error) {
-      console.log(error);
-      let response = new ResponseModel(404, error.message, error);
-      res.status(404).json(response);
-    }
-    //   } else {
-    //     res.sendStatus(403);
-    //   }
-  }
-
-  async function getPagingProfile(req, res) {
-    let pageSize = req.query.pageSize || 10;
-    let pageIndex = req.query.pageIndex || 1;
-  
-    let searchObj = {};
-    if (req.query.search) {
-      searchObj = { nameProfile: { $regex: ".*" + req.query.search + ".*" } };
-    }
-    try {
-      let profiles = await Profile.find(searchObj)
-        .skip(pageSize * pageIndex - pageSize)
-        .limit(parseInt(pageSize))
-        .sort({
-          createdTime: "desc",
-        });
-    // console.log(profiles)
-      let count = await Profile.find(searchObj).countDocuments();
-      let totalPages = Math.ceil(count / pageSize);
-      let pagedModel = new PagedModel(
-        pageIndex,
-        pageSize,
-        totalPages,
-        profiles,
-        count
-      );
-      res.json(pagedModel);
->>>>>>> e8da8587fc1e61b562bbfbe21dc297bfec1a58b9
     } catch (error) {
       let response = new ResponseModel(404, error.message, error);
       res.status(404).json(response);
     }
-<<<<<<< HEAD
   } else {
     res.status(404).json(new ResponseModel(404, "MenuId is not valid!", null));
   }
@@ -232,10 +169,3 @@ exports.updateProfile = updateProfile;
 exports.deleteProfile = deleteProfile;
 exports.getPagingProfile = getPagingProfile;
 exports.getProfileById = getProfileById;
-=======
-  }
-
-
-  exports.createProfile = createProfile;
-  exports.getPagingProfile = getPagingProfile;
->>>>>>> e8da8587fc1e61b562bbfbe21dc297bfec1a58b9
