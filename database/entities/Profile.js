@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 let profileSchema = new Schema(
   {
     overView: {
-      name: String,
+      name: { type: String, unique: true },
       group: {
         //   type: Schema.Types.ObjectId,
         type: String,
@@ -56,8 +56,8 @@ let profileSchema = new Schema(
       },
       //
       canvas: {
-        type: Number,
-        default: 0,
+        type: String,
+        default: '0',
       },
       disturbSound: { type: String, default: "disturbSound default" },
       disturbPicture: { type: String, default: "disturbPicture default" },
@@ -87,14 +87,13 @@ let profileSchema = new Schema(
     updatedTime: {
       type: Date,
     },
-    durationTime:{
-      type:Date,
-      
+    durationTime: {
+      type: Date,
     },
-    lastTimeOpen:{
+    lastTimeOpen: {
       type: Date,
       default: Date.now,
-    }
+    },
     // hardWare: { type: String, default: "ramNumber default" },
   },
 

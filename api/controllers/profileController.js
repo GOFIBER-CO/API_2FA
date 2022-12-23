@@ -9,13 +9,13 @@ async function createProfile(req, res) {
   try {
     let menu = new Menus(req.body);
     menu.createdTime = Date.now();
-    menu.updatedTime=Date.now()
-    menu.lastTimeOpen=Date.now()
+    menu.updatedTime = Date.now();
+    menu.lastTimeOpen = Date.now();
 
     //cộng 31 ngày từ khi tạo
     const date = new Date();
     date.setDate(date.getDate() + 31);
-    menu.durationTime=date
+    menu.durationTime = date;
     //   menu.user = req.userId;
     //   if (menu.parent) {
     //     let menuCheckUnique = await Menus.findOne({
@@ -48,25 +48,13 @@ async function createProfile(req, res) {
 
 async function updateProfile(req, res) {
   console.log(`req.params`, req.params);
+  console.log(`body`, req.body.data);
+  // return
   // if (req.actions.includes("updateProfile")) {
   try {
     // let newMenu = { updatedTime: Date.now(), user: req.userId, ...req.body };
-    let newMenu = { updatedTime: Date.now(), ...req.body };
-    //   if (newMenu.parent) {
-    //     let menuCheckUnique = await Menus.findOne({
-    //       menuSlug: newMenu.menuSlug,
-    //       parent: newMenu.parent,
-    //     });
-    //     console.log(menuCheckUnique);
-    //     if (menuCheckUnique) {
-    //       let response = new ResponseModel(
-    //         404,
-    //         "Không được trùng cả name và parent",
-    //         error
-    //       );
-    //       res.status(404).json(response);
-    //     }
-    //   }
+    let newMenu = { updatedTime: Date.now(), ...req.body.data };
+
     let updatedMenu = await Menus.findOneAndUpdate(
       { _id: req.params.id },
       newMenu
@@ -88,15 +76,16 @@ async function updateProfile(req, res) {
 }
 
 async function deleteProfile(req, res) {
+  console.log(req.params);
   //   if (req.actions.includes("deleteProfile")) {
   if (isValidObjectId(req.params.id)) {
     try {
       let menu = await Menus.findByIdAndDelete(req.params.id);
       if (!menu) {
-        let response = new ResponseModel(0, "No item found!", null);
+        let response = new ResponseModel(0, "No profile item found!", null);
         res.json(response);
       } else {
-        let response = new ResponseModel(1, "Delete menu success!", null);
+        let response = new ResponseModel(1, "Delete profile success!", null);
         res.json(response);
       }
     } catch (error) {
@@ -122,7 +111,7 @@ async function getPagingProfile(req, res) {
       name: { $regex: ".*" + req.query.search + ".*" },
     };
   }
-  console.log('searchObj: ', searchObj);
+  console.log("searchObj: ", searchObj);
 
   try {
     let menus = await Menus.find(searchObj)
@@ -162,6 +151,7 @@ async function getPagingProfile(req, res) {
 }
 
 async function getProfileById(req, res) {
+  console.log(req.params);
   if (isValidObjectId(req.params.id)) {
     try {
       let menu = await Menus.findById(req.params.id);
