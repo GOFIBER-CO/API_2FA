@@ -2,6 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const Profile = require("../../database/entities/GroupProfile");
 const PagedModel = require("../models/PagedModel");
 const ResponseModel = require("../models/ResponseModel");
+let bcrypt = require('bcryptjs');
 
 
 async function createGroupProfile(req, res) {
@@ -60,12 +61,14 @@ async function createGroupProfile(req, res) {
     }
   }
 
-  async function createPasswordGroupProfile(req, res) {
+  async function createPasswordGroupProfile (req, res) {
+    const salt =  bcrypt.genSaltSync(10);
+    const password = bcrypt.hashSync(req.body?.password, salt)
     try {
       // console.log(req.body,req.params)
       let newPassword = {
         updatedTime: Date.now(),
-        password: req.body?.password,
+        password: password,
         
       };
       let updatePassword = await Profile.findOneAndUpdate(
@@ -90,16 +93,14 @@ async function createGroupProfile(req, res) {
     if(!req.body.password)
        return res.status(400).json(new ResponseModel(-3, "Password cannot be left blank!", null))
     try {
-      // console.log(req.body,req.params)
       let newPassword = {
         updatedTime: Date.now(),
         password: '',
       };
-      let checkPass = await Profile.findOne({
-        password: req.body.password,
+      let profileById = await Profile.findOne({
         _id: req.params.id
       })
-      // console.log(checkPass)
+      const checkPass = bcrypt.compareSync(req.body?.password, profileById.password)
       if(!checkPass)
         return res.status(401).json(new ResponseModel(-1, "Password not match!", null))
       let updatePassword = await Profile.findOneAndUpdate(
@@ -121,24 +122,52 @@ async function createGroupProfile(req, res) {
   }
 
   async function deleteGroupProfile(req, res) {
-    console.log(req.body);
-    try {
-      const deleteGroupPfile = await Profile.deleteMany({
-        _id: req.body._id,
-       
-      });
-      let response = new ResponseModel(
-          1,
-          "Delete group profile success!",
-          deleteGroupPfile
-        );
-        res.json(response);
-    } catch (error) {
-      console.log(error);
-      let response = new ResponseModel(404, error.message, error);
-      res.status(404).json(response);
+    if (isValidObjectId(req.params.id)) {
+      try {
+        let GroupProfile = await Profile.findByIdAndDelete(req.params.id);
+        if (!GroupProfile) {
+          let response = new ResponseModel(0, "No item found!", null);
+          res.json(response);
+        } else {
+          let response = new ResponseModel(1, "Delete Group Profile success!", null);
+          res.json(response);
+        }
+      } catch (error) {
+        let response = new ResponseModel(404, error.message, error);
+        res.status(404).json(response);
+      }
+    } else {
+      res.status(404).json(new ResponseModel(404, "Group ProfileId is not valid!", null));
     }
   
+  }
+
+  async function updateGroupProfile(req, res) {
+    if(!req.body.nameProfile)
+       return res.status(400).json(new ResponseModel(-3, "name cannot be left blank!", null))
+       try {
+        // console.log(req.body,req.params)
+        let updateNameGroupProfile = {
+          updatedTime: Date.now(),
+          nameProfile: req.body?.nameProfile,
+          
+        };
+        let updateGroupProfile = await Profile.findOneAndUpdate(
+          { _id: req.params.id},
+          updateNameGroupProfile
+        );
+        if (!updateGroupProfile) {
+          let response = new ResponseModel(0, "No item found!", null);
+          res.json(response);
+        } else {
+          let response = new ResponseModel(1, "update group name profile success!", updateGroupProfile);
+          res.json(response);
+        }
+      } catch (error) {
+        console.log(error);
+        let response = new ResponseModel(404, error.message, error);
+        res.status(404).json(response);
+      }
   }
 
 
@@ -147,3 +176,4 @@ async function createGroupProfile(req, res) {
   exports.createPasswordGroupProfile = createPasswordGroupProfile;
   exports.deletePasswordGroupProfile = deletePasswordGroupProfile;
   exports.deleteGroupProfile = deleteGroupProfile;
+  exports.updateGroupProfile = updateGroupProfile;

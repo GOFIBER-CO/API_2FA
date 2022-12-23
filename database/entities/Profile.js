@@ -94,6 +94,10 @@ let profileSchema = new Schema(
       type: Date,
       default: Date.now,
     },
+    status: {
+      type: Boolean,
+      default: false,
+    },
     // hardWare: { type: String, default: "ramNumber default" },
   },
 

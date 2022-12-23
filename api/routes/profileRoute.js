@@ -7,9 +7,19 @@ const middleware = require("./middlewares");
 router.post("/insert", profileController.createProfile);
 router.delete("/delete/:id", profileController.deleteProfile);
 router.get("/getPaging", profileController.getPagingProfile);
+router.get("/getPagingNoGroup", profileController.getPagingProfileNoGroup);
 router.put("/update/:id", profileController.updateProfile);
 router.get("/getById/:id", profileController.getProfileById);
-
+router.get(
+  "/startBrower/:id",
+  middleware.authentication,
+  profileController.startBrower
+);
+router.get(
+  "/endBrower/:id",
+  middleware.authentication,
+  profileController.endBrower
+);
 // router.put("/update/:id", middleware.authorize, menuController.updateMenu);
 // router.delete("/delete/:id", middleware.authorize, menuController.deleteMenu);
 // router.get("/getPaging", menuController.getPagingMenus);
