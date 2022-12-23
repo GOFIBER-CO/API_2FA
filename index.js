@@ -36,6 +36,7 @@ const port = process.env.PORT;
 const userRoute = require("./api/routes/authentication/userRoute");
 const secretRouter = require("./api/routes/secretRoute");
 const groupRouter = require("./api/routes/groupRoute");
+const groupProfileRouter = require("./api/routes/groupProfileRouter");
 const roleRoute = require("./api/routes/roleRoute");
 const actionRoute = require("./api/routes/actionRoute");
 const roleActionRoute = require("./api/routes/roleActionRoute");
@@ -48,6 +49,8 @@ const menuRoute = require("./api/routes/menuRoute");
 const feedbackRoute = require("./api/routes/feedbackRoute");
 const shortCodeRoute = require("./api/routes/shortCodeRoute");
 const schemaRoute = require("./api/routes/schemaRoute");
+const profileRoute = require("./api/routes/profileRoute");
+
 // const appRoute = require("./api/routes/appRoute");
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
@@ -65,12 +68,15 @@ app.use("/api/shortcode", shortCodeRoute);
 app.use("/api/schema", schemaRoute);
 app.use("/api/feedback", feedbackRoute);
 app.use("/api/app", appRoute);
+app.use("/api/profile", profileRoute);
 
 //import routes
 app.use("/api/user", userRoute);
 
 app.use("/api/secret", secretRouter);
 app.use("/api/group", groupRouter);
+//Group profile
+app.use("/api/group-profile", groupProfileRouter);
 const server = require("http").Server(app);
 const io = new Server(server, {
   cors: {

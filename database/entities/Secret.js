@@ -13,6 +13,10 @@ let SecretSchema = new Schema({
       ref: "Users",
     },
   ],
+  groupId:{
+    type:Schema.Types.ObjectId,
+    ref:"Group",
+  },
   userCreated: {
     type: Schema.Types.ObjectId,
     ref: "Users",
@@ -20,6 +24,7 @@ let SecretSchema = new Schema({
   comment: {
     type: String,
   },
+  
   createdTime: {
     type: Date,
     default: Date.now,
