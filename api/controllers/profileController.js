@@ -1,21 +1,24 @@
+const Profile = require("../../database/entities/Profile");
 const Menus = require("../../database/entities/Profile");
+const Users = require("../../database/entities/authentication/Users");
 const PagedModel = require("../models/PagedModel");
 const ResponseModel = require("../models/ResponseModel");
 const { isValidObjectId, Types } = require("mongoose");
-
+const puppeteer = require("puppeteer");
+const listBrowser = [];
 async function createProfile(req, res) {
   console.log(req.body, `createProfile`);
   //   if (req.actions.includes("createProfile")) {
   try {
     let menu = new Menus(req.body);
     menu.createdTime = Date.now();
-    menu.updatedTime=Date.now()
-    menu.lastTimeOpen=Date.now()
+    menu.updatedTime = Date.now();
+    menu.lastTimeOpen = Date.now();
 
     //cộng 31 ngày từ khi tạo
     const date = new Date();
     date.setDate(date.getDate() + 31);
-    menu.durationTime=date
+    menu.durationTime = date;
     //   menu.user = req.userId;
     //   if (menu.parent) {
     //     let menuCheckUnique = await Menus.findOne({
@@ -122,7 +125,6 @@ async function getPagingProfile(req, res) {
       name: { $regex: ".*" + req.query.search + ".*" },
     };
   }
-  console.log('searchObj: ', searchObj);
 
   try {
     let menus = await Menus.find(searchObj)
@@ -131,25 +133,31 @@ async function getPagingProfile(req, res) {
       //   .populate("user")
       .sort({ createdTime: "desc" });
     let arrayMenus = [];
-    // for (let i = 0; i < menus.length; i++) {
-    //   if (menus[i].parent != null) {
-    //     let parentName = menus.find(
-    //       (item) => item.id.toString() == menus[i].parent.toString()
-    //     );
-    //     menus[i].parent = parentName;
-    //   }
-    // }
-    // menus = menus.map((menu) => {
-    //   // console.log(menus)
-    //   if (menu.user != undefined && menu.user != null && menu.user != "") {
-    //     menu.user.password = "";
-    //     return menu;
-    //   } else {
-    //     return menu;
-    //   }
-    // });
 
-    // let count = await Menus.find(searchObj).countDocuments();
+    const count = menus.length;
+    let totalPages = Math.ceil(count / pageSize);
+    let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, menus);
+
+    res.json(pagedModel);
+  } catch (error) {
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+
+async function getPagingProfileNoGroup(req, res) {
+  let pageSize = req.query.pageSize || 10;
+  let pageIndex = req.query.pageIndex || 1;
+  let searchObj = {
+    "overView.group": "",
+  };
+
+  try {
+    let menus = await Menus.find(searchObj)
+      .skip(pageSize * pageIndex - pageSize)
+      .limit(parseInt(pageSize))
+      //   .populate("user")
+      .sort({ createdTime: "desc" });
     const count = menus.length;
     let totalPages = Math.ceil(count / pageSize);
     let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, menus);
@@ -173,8 +181,57 @@ async function getProfileById(req, res) {
     res.status(404).json(new ResponseModel(404, "MenuId is not valid!", null));
   }
 }
+
+async function startBrower(req, res) {
+  try {
+    const browser = await puppeteer.launch({
+      headless: false,
+      args: [
+        `--user-data-dir=C:\\Users\\ADMIN\\AppData\\Local\\Google\\Chrome\\User Data\\${req.params.id}`,
+      ],
+    });
+    const page = await browser.newPage();
+    const updateProfile = await Profile.findByIdAndUpdate(req.params.id, {
+      status: true,
+    });
+    listBrowser.push({ id: req.params.id, browser: browser });
+    res.json({ status: 1 });
+    browser.on("disconnected", async () => {
+      await Profile.findByIdAndUpdate(req.params.id, {
+        status: false,
+      });
+      const user = await Users.findById(req.user._id);
+      console.log(user);
+      user?.socketId.map((item) => {
+        _io.to(item).emit("disconnectedBrower", req.params.id);
+      });
+    });
+  } catch (error) {
+    res.status(404).json(404, error.message, error);
+  }
+}
+
+async function endBrower(req, res) {
+  try {
+    listBrowser.map((item) => {
+      if (item?.id === req.params.id) {
+        item?.browser?.close();
+      }
+    });
+    const updateProfile = await Profile.findByIdAndUpdate(req.params.id, {
+      status: false,
+    });
+    res.json({ status: 1 });
+  } catch (error) {
+    console.log(error);
+    res.status(404).json(404, error.message, error);
+  }
+}
 exports.createProfile = createProfile;
 exports.updateProfile = updateProfile;
 exports.deleteProfile = deleteProfile;
 exports.getPagingProfile = getPagingProfile;
 exports.getProfileById = getProfileById;
+exports.startBrower = startBrower;
+exports.endBrower = endBrower;
+exports.getPagingProfileNoGroup = getPagingProfileNoGroup;

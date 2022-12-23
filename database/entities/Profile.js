@@ -87,14 +87,17 @@ let profileSchema = new Schema(
     updatedTime: {
       type: Date,
     },
-    durationTime:{
-      type:Date,
-      
+    durationTime: {
+      type: Date,
     },
-    lastTimeOpen:{
+    lastTimeOpen: {
       type: Date,
       default: Date.now,
-    }
+    },
+    status: {
+      type: Boolean,
+      default: false,
+    },
     // hardWare: { type: String, default: "ramNumber default" },
   },
 
