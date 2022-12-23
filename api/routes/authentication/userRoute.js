@@ -11,6 +11,17 @@ router.put(
   middlewares.authentication,
   userController.updateUser
 );
+router.put(
+  "/updateSocket/:id",
+  middlewares.authentication,
+  userController.updateSocketUser
+);
+
+router.put(
+  "/updateResetSocket/:id",
+  middlewares.authentication,
+  userController.resetSocketUser
+);
 router.delete("/delete/:id", middlewares.authorize, userController.deleteUser);
 router.post("/getById", middlewares.authentication, userController.getUserById);
 router.post(

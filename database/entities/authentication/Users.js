@@ -18,7 +18,7 @@ let userSchema = new Schema(
     email: {
       type: String,
     },
-
+    socketId: [{ type: String }],
     createdTime: {
       type: Date,
       default: Date.now,

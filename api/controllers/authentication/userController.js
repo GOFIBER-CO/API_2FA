@@ -292,7 +292,48 @@ async function register(req, res) {
     res.status(404).json(response);
   }
 }
+async function updateSocketUser(req, res) {
+  try {
+    const { socketId } = req.body;
+    let newsocket = {
+      updatedTime: Date.now(),
+      $addToSet: { socketId: socketId },
+    };
+    let updateSocket = await Users.updateOne({ _id: req.params.id }, newsocket);
+    if (!updateSocket) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Update socket user success!",
+        newsocket
+      );
+      res.json(response);
+    }
+  } catch (error) {}
+}
 
+async function resetSocketUser(req, res) {
+  try {
+    let newsocket = {
+      updatedTime: Date.now(),
+      socketId: [],
+    };
+    let updateSocket = await Users.updateOne({ _id: req.params.id }, newsocket);
+    if (!updateSocket) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Update socket user success!",
+        newsocket
+      );
+      res.json(response);
+    }
+  } catch (error) {}
+}
 async function getPaging(req, res) {
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
@@ -554,3 +595,5 @@ exports.getQrCode = getQrCode;
 exports.verify2FaToken = verify2FaToken;
 exports.login2Fa = login2Fa;
 exports.getSurplus = getSurplus;
+exports.updateSocketUser = updateSocketUser;
+exports.resetSocketUser = resetSocketUser;
