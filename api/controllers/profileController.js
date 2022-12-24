@@ -7,22 +7,45 @@ const { isValidObjectId, Types, Mongoose } = require("mongoose");
 const puppeteer = require("puppeteer");
 const listBrowser = [];
 async function createProfile(req, res) {
+  // console.log(req.userId, "backa");
+  // req.body.userCreated = req.user._id;
+  // console.log(req.body, `createProfile`);
   //   if (req.actions.includes("createProfile")) {
   try {
-    let menu = new Menus(req.body);
-    menu.createdTime = Date.now();
-    menu.updatedTime = Date.now();
-    menu.lastTimeOpen = Date.now();
+    req.body.userCreated = req.userId;
+    let profile = new Profile(req.body);
+
+    profile.createdTime = Date.now();
+    profile.updatedTime = Date.now();
+    profile.lastTimeOpen = Date.now();
+    // profile.userCreated = req.userId;
+
     //cộng 31 ngày từ khi tạo
     const date = new Date();
     date.setDate(date.getDate() + 31);
-    menu.durationTime = date;
-    menu.save((err, newMenu) => {
+    profile.durationTime = date;
+    //   menu.user = req.userId;
+    //   if (menu.parent) {
+    //     let menuCheckUnique = await Menus.findOne({
+    //     //   menuSlug: menu.menuSlug,
+    //     //   "parent._id": menu.parent._id,
+    //     });
+    //     console.log(menuCheckUnique);
+    //     if (menuCheckUnique) {
+    //       let response = new ResponseModel(404, error.message, error);
+    //       res.status(404).json(response);
+    //     }
+    //   }
+    await profile.save((err, newProfile) => {
       if (err) {
         let response = new ResponseModel(-2, err.message, err);
         res.json(response);
       } else {
-        let response = new ResponseModel(1, "Create menu success!", newMenu);
+        let response = new ResponseModel(
+          1,
+          "Create profile success!",
+          newProfile
+        );
         res.json(response);
       }
     });
@@ -36,35 +59,23 @@ async function createProfile(req, res) {
 }
 
 async function updateProfile(req, res) {
-  console.log(`req.params`, req.params);
+  // console.log(`req.params`, req.params);
+  // console.log(`body`, req.body.data);
+  // return
   // if (req.actions.includes("updateProfile")) {
   try {
     // let newMenu = { updatedTime: Date.now(), user: req.userId, ...req.body };
-    let newMenu = { updatedTime: Date.now(), ...req.body };
-    //   if (newMenu.parent) {
-    //     let menuCheckUnique = await Menus.findOne({
-    //       menuSlug: newMenu.menuSlug,
-    //       parent: newMenu.parent,
-    //     });
-    //     console.log(menuCheckUnique);
-    //     if (menuCheckUnique) {
-    //       let response = new ResponseModel(
-    //         404,
-    //         "Không được trùng cả name và parent",
-    //         error
-    //       );
-    //       res.status(404).json(response);
-    //     }
-    //   }
-    let updatedMenu = await Menus.findOneAndUpdate(
+    let newProfile = { updatedTime: Date.now(), ...req.body.data };
+
+    let updatedProfile = await Profile.findOneAndUpdate(
       { _id: req.params.id },
-      newMenu
+      newProfile
     );
-    if (!updatedMenu) {
+    if (!updatedProfile) {
       let response = new ResponseModel(0, "No item found!", null);
       res.json(response);
     } else {
-      let response = new ResponseModel(1, "Update menu success!", newMenu);
+      let response = new ResponseModel(1, "Update menu success!", newProfile);
       res.json(response);
     }
   } catch (error) {
@@ -77,15 +88,16 @@ async function updateProfile(req, res) {
 }
 
 async function deleteProfile(req, res) {
+  // console.log(req.params);
   //   if (req.actions.includes("deleteProfile")) {
   if (isValidObjectId(req.params.id)) {
     try {
-      let menu = await Menus.findByIdAndDelete(req.params.id);
-      if (!menu) {
-        let response = new ResponseModel(0, "No item found!", null);
+      let profile = await Profile.findByIdAndDelete(req.params.id);
+      if (!profile) {
+        let response = new ResponseModel(0, "No profile item found!", null);
         res.json(response);
       } else {
-        let response = new ResponseModel(1, "Delete menu success!", null);
+        let response = new ResponseModel(1, "Delete profile success!", null);
         res.json(response);
       }
     } catch (error) {
@@ -93,7 +105,9 @@ async function deleteProfile(req, res) {
       res.status(404).json(response);
     }
   } else {
-    res.status(404).json(new ResponseModel(404, "MenuId is not valid!", null));
+    res
+      .status(404)
+      .json(new ResponseModel(404, "Profile Id is not valid!", null));
   }
   //   } else {
   //     res.sendStatus(403);
@@ -101,28 +115,51 @@ async function deleteProfile(req, res) {
 }
 
 async function getPagingProfile(req, res) {
-  console.log(req.query);
+  const currentDate = Date.now();
+  // console.log(typeof req.query.status);
+  // console.log(req.query);
+  // return;
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
-  console.log(req.query.search);
+  // console.log(req.query.name);
+  const searchName = req.query.name;
   let searchObj = {};
-  if (req.query.search) {
+  if (searchName.length > 0) {
     searchObj = {
-      name: { $regex: ".*" + req.query.search + ".*" },
+      name: { $regex: ".*" + req.query.name + ".*" },
     };
   }
-
   try {
-    let menus = await Menus.find(searchObj)
+    let profile = await Profile.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
       //   .populate("user")
-      .sort({ createdTime: "desc" });
-    let arrayMenus = [];
 
-    const count = menus.length;
+      .sort({ createdTime: "desc" });
+    const status = req.query.status;
+    if (status === "true") {
+      profile = profile.map((item, key) => {
+        if (item.durationTime.getTime() > currentDate) {
+          return item;
+        }
+      });
+    } else if (status === "false") {
+      profile = profile.map((item, key) => {
+        if (item.durationTime.getTime() < currentDate) {
+          return item;
+        }
+      });
+    }
+    // console.log(`menus`, typeof menus[0]);
+    // let arrayMenus = [];
+    // console.log(menus);
+    profile = profile.filter(function (element) {
+      return element !== undefined;
+    });
+
+    const count = profile.length;
     let totalPages = Math.ceil(count / pageSize);
-    let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, menus);
+    let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, profile);
 
     res.json(pagedModel);
   } catch (error) {
@@ -135,18 +172,18 @@ async function getPagingProfileNoGroup(req, res) {
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
   let searchObj = {
-    "overView.group": "",
+    group: "",
   };
 
   try {
-    let menus = await Menus.find(searchObj)
+    let profile = await Profile.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
       //   .populate("user")
       .sort({ createdTime: "desc" });
-    const count = menus.length;
+    const count = profile.length;
     let totalPages = Math.ceil(count / pageSize);
-    let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, menus);
+    let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, profile);
 
     res.json(pagedModel);
   } catch (error) {
@@ -156,15 +193,18 @@ async function getPagingProfileNoGroup(req, res) {
 }
 
 async function getProfileById(req, res) {
+  // console.log(req.params);
   if (isValidObjectId(req.params.id)) {
     try {
-      let menu = await Menus.findById(req.params.id);
-      res.json(menu);
+      let profile = await Profile.findById(req.params.id);
+      res.json(profile);
     } catch (error) {
       res.status(404).json(404, error.message, error);
     }
   } else {
-    res.status(404).json(new ResponseModel(404, "MenuId is not valid!", null));
+    res
+      .status(404)
+      .json(new ResponseModel(404, "Profile Id is not valid!", null));
   }
 }
 
@@ -300,7 +340,7 @@ async function startBrower(req, res) {
         status: false,
       });
       const user = await Users.findById(req.user._id);
-      console.log(user);
+      // console.log(user);
       user?.socketId.map((item) => {
         _io.to(item).emit("disconnectedBrower", req.params.id);
       });
@@ -322,7 +362,7 @@ async function endBrower(req, res) {
     });
     res.json({ status: 1 });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.status(404).json(404, error.message, error);
   }
 }
