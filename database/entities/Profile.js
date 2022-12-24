@@ -4,23 +4,22 @@ const { Schema } = mongoose;
 
 let profileSchema = new Schema(
   {
-    overView: {
-      name: { type: String, unique: true },
-      group: {
-        //   type: Schema.Types.ObjectId,
-        type: String,
-        ref: "Group",
-        default: null,
-      },
-      operatingSystem: {
-        type: String,
-        default: "1", //1: windows 2:linux
-      },
-      version: { type: String, default: "version default" },
-      browser: { type: String, default: "browser default" },
-      comment: { type: String, default: null },
-      isAutoRenew: { type: Boolean, default: true },
+    name: { type: String, unique: true },
+    group: {
+      //   type: Schema.Types.ObjectId,
+      type: String,
+      ref: "Group",
+      default: null,
     },
+    operatingSystem: {
+      type: String,
+      default: "1", //1: windows 2:linux
+    },
+    version: { type: String, default: "version default" },
+    browser: { type: String, default: "browser default" },
+    comment: { type: String, default: null },
+    isAutoRenew: { type: Boolean, default: true },
+
     netWork: {
       proxy: { type: String, default: "proxy default" },
       timeZone: { type: String, default: "timeZone default" },
@@ -57,7 +56,7 @@ let profileSchema = new Schema(
       //
       canvas: {
         type: String,
-        default: '0',
+        default: "0",
       },
       disturbSound: { type: String, default: "disturbSound default" },
       disturbPicture: { type: String, default: "disturbPicture default" },
@@ -93,6 +92,10 @@ let profileSchema = new Schema(
     lastTimeOpen: {
       type: Date,
       default: Date.now,
+    },
+    userCreated: {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
     },
     status: {
       type: Boolean,
