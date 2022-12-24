@@ -98,7 +98,19 @@ let profileSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    // hardWare: { type: String, default: "ramNumber default" },
+    userId: [
+      {
+        user: {
+          type: Schema.Types.ObjectId,
+          ref: "Users",
+        },
+        role: String,
+      },
+    ],
+    userCreated: {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
+    },
   },
 
   { versionKey: false }

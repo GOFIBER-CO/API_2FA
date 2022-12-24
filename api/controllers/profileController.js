@@ -3,35 +3,21 @@ const Menus = require("../../database/entities/Profile");
 const Users = require("../../database/entities/authentication/Users");
 const PagedModel = require("../models/PagedModel");
 const ResponseModel = require("../models/ResponseModel");
-const { isValidObjectId, Types } = require("mongoose");
+const { isValidObjectId, Types, Mongoose } = require("mongoose");
 const puppeteer = require("puppeteer");
 const listBrowser = [];
 async function createProfile(req, res) {
-  console.log(req.body, `createProfile`);
   //   if (req.actions.includes("createProfile")) {
   try {
     let menu = new Menus(req.body);
     menu.createdTime = Date.now();
     menu.updatedTime = Date.now();
     menu.lastTimeOpen = Date.now();
-
     //cộng 31 ngày từ khi tạo
     const date = new Date();
     date.setDate(date.getDate() + 31);
     menu.durationTime = date;
-    //   menu.user = req.userId;
-    //   if (menu.parent) {
-    //     let menuCheckUnique = await Menus.findOne({
-    //     //   menuSlug: menu.menuSlug,
-    //     //   "parent._id": menu.parent._id,
-    //     });
-    //     console.log(menuCheckUnique);
-    //     if (menuCheckUnique) {
-    //       let response = new ResponseModel(404, error.message, error);
-    //       res.status(404).json(response);
-    //     }
-    //   }
-    await menu.save((err, newMenu) => {
+    menu.save((err, newMenu) => {
       if (err) {
         let response = new ResponseModel(-2, err.message, err);
         res.json(response);
@@ -182,6 +168,119 @@ async function getProfileById(req, res) {
   }
 }
 
+async function durationProfile(req, res) {
+  try {
+    const profile = await Menus.findById(req.params.id);
+    profile.durationTime.setDate(
+      profile.durationTime.getDate() + parseInt(req.body.data)
+    );
+    Menus.findByIdAndUpdate(req.params.id, {
+      durationTime: profile.durationTime,
+    }).then(() => {
+      return res.status(200).json({ status: 1 });
+    });
+  } catch (error) {
+    res.status(500).json(new ResponseModel(500, error, null));
+  }
+}
+async function updateUserInProfile(req, res) {
+  try {
+    const { id, role } = req.body;
+
+    let newUserProfile = {
+      updatedTime: Date.now(),
+      $addToSet: { userId: { user: id, role: role } },
+    };
+    let updateProfile = await Menus.updateOne(
+      { _id: req.params.id },
+      newUserProfile
+    );
+    if (!updateProfile) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Update profile success!",
+        newUserProfile
+      );
+      res.json(response);
+    }
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+
+async function tranferProfile(req, res) {
+  try {
+    const { id } = req.body;
+    let newUserProfile = {
+      updatedTime: Date.now(),
+      userCreated: id,
+    };
+    let updateProfile = await Menus.updateOne(
+      { _id: req.params.id },
+      newUserProfile
+    );
+    if (!updateProfile) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Update profile success!",
+        newUserProfile
+      );
+      res.json(response);
+    }
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+
+async function copyProfile(req, res) {
+  try {
+    const { quantity, property } = req.body;
+    let profile = await Menus.findById(req.params.id);
+    let profileList = [];
+    for (let i = 1; i <= quantity; i = i + 1) {
+      let copy = { ...profile?._doc };
+      delete copy._id;
+      copy.name = `${copy?.name} ${i}`;
+      copy.userCreated = req.user?._id;
+      profileList.push(copy);
+    }
+    Menus.insertMany(profileList, (err, profiles) => {
+      if (err) {
+        console.log(err);
+        let response = new ResponseModel(404, err.message, err);
+        res.status(404).json(response);
+      } else {
+        let response = new ResponseModel(1, "Copy profile success!");
+        res.json(response);
+      }
+    });
+    // let updateProfile = await Menus.updateOne(
+    //   { _id: req.params.id },
+    //   newUserProfile
+    // );
+    // if (!updateProfile) {
+    //   let response = new ResponseModel(0, "No item found!", null);
+    //   res.json(response);
+    // } else {
+    //   let response = new ResponseModel(1, "Copy profile success!");
+    //   res.json(response);
+    // }
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
 async function startBrower(req, res) {
   try {
     const browser = await puppeteer.launch({
@@ -227,11 +326,15 @@ async function endBrower(req, res) {
     res.status(404).json(404, error.message, error);
   }
 }
+exports.tranferProfile = tranferProfile;
 exports.createProfile = createProfile;
 exports.updateProfile = updateProfile;
 exports.deleteProfile = deleteProfile;
 exports.getPagingProfile = getPagingProfile;
+exports.copyProfile = copyProfile;
 exports.getProfileById = getProfileById;
 exports.startBrower = startBrower;
 exports.endBrower = endBrower;
+exports.durationProfile = durationProfile;
+exports.updateUserInProfile = updateUserInProfile;
 exports.getPagingProfileNoGroup = getPagingProfileNoGroup;

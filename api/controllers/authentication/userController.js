@@ -382,7 +382,6 @@ async function getUserByEmail(req, res) {
   if (req.body.email) {
     try {
       let user = await Users.findOne({ email: req.body.email });
-      console.log(user);
       if (user === null) {
         res.status(404).json({});
         return;

@@ -9,6 +9,14 @@ router.delete("/delete/:id", profileController.deleteProfile);
 router.get("/getPaging", profileController.getPagingProfile);
 router.get("/getPagingNoGroup", profileController.getPagingProfileNoGroup);
 router.put("/update/:id", profileController.updateProfile);
+router.put("/updateDuration/:id", profileController.durationProfile);
+router.put("/updateUserInProfile/:id", profileController.updateUserInProfile);
+router.put("/transferProfile/:id", profileController.tranferProfile);
+router.put(
+  "/copyProfile/:id",
+  middleware.authentication,
+  profileController.copyProfile
+);
 router.get("/getById/:id", profileController.getProfileById);
 router.get(
   "/startBrower/:id",
