@@ -115,7 +115,7 @@ async function getPagingProfile(req, res) {
   if (searchName) {
     searchObj = {
       name: { $regex: ".*" + req.query.name + ".*" },
-      { userCreated: req.user._id }
+      userCreated: req.user._id,
     };
   }
   try {
