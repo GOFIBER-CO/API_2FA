@@ -7,6 +7,7 @@ const { isValidObjectId, Types, Mongoose } = require("mongoose");
 const puppeteer = require("puppeteer");
 const listBrowser = [];
 async function createProfile(req, res) {
+  // console.log(`req.body`, req.body);
   try {
     req.body.userCreated = req.user._id;
     let profile = new Profile(req.body);
@@ -128,7 +129,6 @@ async function getPagingProfile(req, res) {
     let profile = await Profile.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
-      //   .populate("user")
 
       .sort({ createdTime: "desc" });
     const status = req.query.status;
@@ -250,7 +250,7 @@ async function getProfileById(req, res) {
   // console.log(req.params);
   if (isValidObjectId(req.params.id)) {
     try {
-      let profile = await Profile.findById(req.params.id);
+      let profile = await Profile.findById(req.params.id).populate("group");
       res.json(profile);
     } catch (error) {
       res.status(404).json(404, error.message, error);
