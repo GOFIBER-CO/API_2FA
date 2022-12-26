@@ -36,8 +36,9 @@ async function createProfile(req, res) {
     //       res.status(404).json(response);
     //     }
     //   }
-    await profile.save((err, newProfile) => {
+    profile.save((err, newProfile) => {
       if (err) {
+        console.log(err);
         let response = new ResponseModel(-2, err.message, err);
         res.json(response);
       } else {
@@ -124,7 +125,7 @@ async function getPagingProfile(req, res) {
   // console.log(req.query.name);
   const searchName = req.query.name;
   let searchObj = {};
-  if (searchName.length > 0) {
+  if (searchName) {
     searchObj = {
       name: { $regex: ".*" + req.query.name + ".*" },
     };
@@ -256,6 +257,7 @@ async function updateUserInProfile(req, res) {
 async function tranferProfile(req, res) {
   try {
     const { id } = req.body;
+    console.log(id);
     let newUserProfile = {
       updatedTime: Date.now(),
       userCreated: id,
