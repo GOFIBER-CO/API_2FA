@@ -7,12 +7,8 @@ const { isValidObjectId, Types, Mongoose } = require("mongoose");
 const puppeteer = require("puppeteer");
 const listBrowser = [];
 async function createProfile(req, res) {
-  // console.log(req.userId, "backa");
-  // req.body.userCreated = req.user._id;
-  // console.log(req.body, `createProfile`);
-  //   if (req.actions.includes("createProfile")) {
   try {
-    req.body.userCreated = req.userId;
+    req.body.userCreated = req.user._id;
     let profile = new Profile(req.body);
 
     profile.createdTime = Date.now();
@@ -43,9 +39,6 @@ async function createProfile(req, res) {
     let response = new ResponseModel(404, error.message, error);
     res.status(404).json(response);
   }
-  //   } else {
-  //     res.sendStatus(403);
-  //   }
 }
 
 async function updateProfile(req, res) {
@@ -156,7 +149,59 @@ async function getPagingProfile(req, res) {
     res.status(404).json(response);
   }
 }
+async function getPagingProfileAdded(req, res) {
+  // console.log(`req.userId`, req.user._id);
+  const currentDate = Date.now();
+  let pageSize = req.query.pageSize || 10;
+  let pageIndex = req.query.pageIndex || 1;
+  console.log(req.user._id);
+  const searchName = req.query.name;
+  let searchObj = { "userId.user": req.user._id };
+  if (searchName) {
+    searchObj = {
+      name: { $regex: ".*" + req.query.name + ".*" },
+      "userId.user": req.user._id,
+    };
+  }
+  try {
+    let profile = await Profile.find(searchObj)
+      .skip(pageSize * pageIndex - pageSize)
+      .limit(parseInt(pageSize))
+      //   .populate("user")
 
+      .sort({ createdTime: "desc" });
+    console.log(profile);
+    const status = req.query.status;
+    if (status === "true") {
+      profile = profile.map((item, key) => {
+        if (item.durationTime.getTime() > currentDate) {
+          return item;
+        }
+      });
+    } else if (status === "false") {
+      profile = profile.map((item, key) => {
+        if (item.durationTime.getTime() < currentDate) {
+          return item;
+        }
+      });
+    }
+    // console.log(`menus`, typeof menus[0]);
+    // let arrayMenus = [];
+    // console.log(menus);
+    profile = profile.filter(function (element) {
+      return element !== undefined;
+    });
+
+    const count = profile.length;
+    let totalPages = Math.ceil(count / pageSize);
+    let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, profile);
+
+    res.json(pagedModel);
+  } catch (error) {
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
 async function getPagingProfileNoGroup(req, res) {
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
@@ -319,8 +364,8 @@ async function startBrower(req, res) {
         `--user-data-dir=C:\\Users\\ADMIN\\AppData\\Local\\Google\\Chrome\\User Data\\${req.params.id}`,
       ],
     });
-    const page = await browser.newPage();
-    const updateProfile = await Profile.findByIdAndUpdate(req.params.id, {
+    await browser.newPage();
+    await Profile.findByIdAndUpdate(req.params.id, {
       status: true,
     });
     listBrowser.push({ id: req.params.id, browser: browser });
@@ -368,3 +413,4 @@ exports.endBrower = endBrower;
 exports.durationProfile = durationProfile;
 exports.updateUserInProfile = updateUserInProfile;
 exports.getPagingProfileNoGroup = getPagingProfileNoGroup;
+exports.getPagingProfileAdded = getPagingProfileAdded;

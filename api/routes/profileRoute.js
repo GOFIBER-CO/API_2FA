@@ -4,7 +4,11 @@ const profileController = require("../controllers/profileController");
 const middleware = require("./middlewares");
 
 // router.post("/insert", middleware.authorize, profileController.createProfile);
-router.post("/insert", middleware.authorize, profileController.createProfile);
+router.post(
+  "/insert",
+  middleware.authentication,
+  profileController.createProfile
+);
 router.delete("/delete/:id", profileController.deleteProfile);
 router.get(
   "/getPaging",
@@ -12,6 +16,12 @@ router.get(
   profileController.getPagingProfile
 );
 router.get("/getPagingNoGroup", profileController.getPagingProfileNoGroup);
+router.get(
+  "/getPagingProfileAdded",
+  middleware.authentication,
+  profileController.getPagingProfileAdded
+);
+
 router.put("/update/:id", profileController.updateProfile);
 router.put("/updateDuration/:id", profileController.durationProfile);
 router.put("/updateUserInProfile/:id", profileController.updateUserInProfile);
