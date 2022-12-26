@@ -1,5 +1,5 @@
 const Profile = require("../../database/entities/Profile");
-const Menus = require("../../database/entities/Profile");
+// const Menus = require("../../database/entities/Profile");
 const Users = require("../../database/entities/authentication/Users");
 const PagedModel = require("../models/PagedModel");
 const ResponseModel = require("../models/ResponseModel");
@@ -24,19 +24,8 @@ async function createProfile(req, res) {
     const date = new Date();
     date.setDate(date.getDate() + 31);
     profile.durationTime = date;
-    //   menu.user = req.userId;
-    //   if (menu.parent) {
-    //     let menuCheckUnique = await Menus.findOne({
-    //     //   menuSlug: menu.menuSlug,
-    //     //   "parent._id": menu.parent._id,
-    //     });
-    //     console.log(menuCheckUnique);
-    //     if (menuCheckUnique) {
-    //       let response = new ResponseModel(404, error.message, error);
-    //       res.status(404).json(response);
-    //     }
-    //   }
-    profile.save((err, newProfile) => {
+
+    await profile.save((err, newProfile) => {
       if (err) {
         console.log(err);
         let response = new ResponseModel(-2, err.message, err);
@@ -116,18 +105,17 @@ async function deleteProfile(req, res) {
 }
 
 async function getPagingProfile(req, res) {
+  // console.log(`req.userId`, req.user._id);
   const currentDate = Date.now();
-  // console.log(typeof req.query.status);
-  // console.log(req.query);
-  // return;
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
   // console.log(req.query.name);
   const searchName = req.query.name;
-  let searchObj = {};
+  let searchObj = { userCreated: req.user._id };
   if (searchName) {
     searchObj = {
       name: { $regex: ".*" + req.query.name + ".*" },
+      { userCreated: req.user._id }
     };
   }
   try {
@@ -211,11 +199,11 @@ async function getProfileById(req, res) {
 
 async function durationProfile(req, res) {
   try {
-    const profile = await Menus.findById(req.params.id);
+    const profile = await Profile.findById(req.params.id);
     profile.durationTime.setDate(
       profile.durationTime.getDate() + parseInt(req.body.data)
     );
-    Menus.findByIdAndUpdate(req.params.id, {
+    Profile.findByIdAndUpdate(req.params.id, {
       durationTime: profile.durationTime,
     }).then(() => {
       return res.status(200).json({ status: 1 });
@@ -232,7 +220,7 @@ async function updateUserInProfile(req, res) {
       updatedTime: Date.now(),
       $addToSet: { userId: { user: id, role: role } },
     };
-    let updateProfile = await Menus.updateOne(
+    let updateProfile = await Profile.updateOne(
       { _id: req.params.id },
       newUserProfile
     );
@@ -262,7 +250,7 @@ async function tranferProfile(req, res) {
       updatedTime: Date.now(),
       userCreated: id,
     };
-    let updateProfile = await Menus.updateOne(
+    let updateProfile = await Profile.updateOne(
       { _id: req.params.id },
       newUserProfile
     );
@@ -287,7 +275,7 @@ async function tranferProfile(req, res) {
 async function copyProfile(req, res) {
   try {
     const { quantity, property } = req.body;
-    let profile = await Menus.findById(req.params.id);
+    let profile = await Profile.findById(req.params.id);
     let profileList = [];
     for (let i = 1; i <= quantity; i = i + 1) {
       let copy = { ...profile?._doc };
@@ -296,7 +284,7 @@ async function copyProfile(req, res) {
       copy.userCreated = req.user?._id;
       profileList.push(copy);
     }
-    Menus.insertMany(profileList, (err, profiles) => {
+    Profile.insertMany(profileList, (err, profiles) => {
       if (err) {
         console.log(err);
         let response = new ResponseModel(404, err.message, err);
