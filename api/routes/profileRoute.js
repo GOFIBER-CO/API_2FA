@@ -29,8 +29,19 @@ router.get(
 router.put("/update/:id", profileController.updateProfile);
 router.put("/updateDuration/:id", profileController.durationProfile);
 router.put("/updateUserInProfile/:id", profileController.updateUserInProfile);
+router.put(
+  "/updateUserInMultiProfile",
+  profileController.updateUserInMultiProfile
+);
+
+router.put("/updateGroupProfile", profileController.updateGroupProfile);
 router.put("/transferProfile/:id", profileController.tranferProfile);
 router.put("/deleteMulti", profileController.deleteMultiProfile);
+router.put(
+  "/updateMultiUserInProfile",
+  profileController.updateMultiUserInProfile
+);
+router.put("/tranferMultiProfile", profileController.tranferMultiProfile);
 router.put(
   "/copyProfile/:id",
   middleware.authentication,

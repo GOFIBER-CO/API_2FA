@@ -8,6 +8,7 @@ let profileSchema = new Schema(
     group: {
       type: Schema.Types.ObjectId,
       ref: "groupProfile",
+      default: null,
     },
     operatingSystem: {
       type: String,

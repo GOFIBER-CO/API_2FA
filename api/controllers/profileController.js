@@ -185,7 +185,6 @@ async function getPagingProfileAdded(req, res) {
       //   .populate("user")
 
       .sort({ createdTime: "desc" });
-    console.log(profile);
     const status = req.query.status;
     if (status === "true") {
       profile = profile.map((item, key) => {
@@ -223,7 +222,7 @@ async function getPagingProfileNoGroup(req, res) {
   let search = req.query.search || "";
   let searchObj = {
     $and: [
-      { group: "" },
+      { group: null },
       { name: { $regex: ".*" + search + ".*" } },
       { userCreated: req.user._id },
     ],
@@ -307,6 +306,93 @@ async function updateUserInProfile(req, res) {
   }
 }
 
+async function updateMultiUserInProfile(req, res) {
+  try {
+    const { id, role, listId } = req.body;
+
+    let newUserProfile = {
+      updatedTime: Date.now(),
+      $addToSet: { userId: { user: id, role: role } },
+    };
+    let updateProfile = await Profile.updateOne(
+      { _id: { $in: listId } },
+      newUserProfile
+    );
+    if (!updateProfile) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Update profile success!",
+        newUserProfile
+      );
+      res.json(response);
+    }
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+async function updateGroupProfile(req, res) {
+  try {
+    const { idGroup, listId } = req.body;
+    let newUserProfile = {
+      updatedTime: Date.now(),
+      group: idGroup,
+    };
+    let updateProfile = await Profile.updateMany(
+      { _id: { $in: listId } },
+      newUserProfile
+    );
+    if (!updateProfile) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Update profile success!",
+        newUserProfile
+      );
+      res.json(response);
+    }
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+async function updateUserInMultiProfile(req, res) {
+  try {
+    const { id, role, listId } = req.body;
+
+    let newUserProfile = {
+      updatedTime: Date.now(),
+      $addToSet: { userId: { user: id, role: role } },
+    };
+    let updateProfile = await Profile.updateMany(
+      { _id: { $in: listId } },
+      newUserProfile
+    );
+    if (!updateProfile) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Update profile success!",
+        newUserProfile
+      );
+      res.json(response);
+    }
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
+
 async function tranferProfile(req, res) {
   try {
     const { id } = req.body;
@@ -337,6 +423,34 @@ async function tranferProfile(req, res) {
   }
 }
 
+async function tranferMultiProfile(req, res) {
+  try {
+    const { id, listId } = req.body;
+    let newUserProfile = {
+      updatedTime: Date.now(),
+      userCreated: id,
+    };
+    let updateProfile = await Profile.updateMany(
+      { _id: { $in: listId } },
+      newUserProfile
+    );
+    if (!updateProfile) {
+      let response = new ResponseModel(0, "No item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(
+        1,
+        "Update profile success!",
+        newUserProfile
+      );
+      res.json(response);
+    }
+  } catch (error) {
+    console.log(error);
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
 async function copyProfile(req, res) {
   try {
     const { quantity, property } = req.body;
@@ -452,3 +566,7 @@ exports.updateUserInProfile = updateUserInProfile;
 exports.getPagingProfileNoGroup = getPagingProfileNoGroup;
 exports.getPagingProfileAdded = getPagingProfileAdded;
 exports.deleteMultiProfile = deleteMultiProfile;
+exports.updateUserInMultiProfile = updateUserInMultiProfile;
+exports.updateGroupProfile = updateGroupProfile;
+exports.updateMultiUserInProfile = updateMultiUserInProfile;
+exports.tranferMultiProfile = tranferMultiProfile;
