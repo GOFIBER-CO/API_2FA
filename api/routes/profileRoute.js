@@ -9,7 +9,7 @@ router.delete("/delete/:id", profileController.deleteProfile);
 router.get("/getPaging", profileController.getPagingProfile);
 router.put("/update/:id", profileController.updateProfile);
 router.get("/getById/:id", profileController.getProfileById);
-
+router.get("/getByGroup/:id", profileController.getProfileByGroup);
 // router.put("/update/:id", middleware.authorize, menuController.updateMenu);
 // router.delete("/delete/:id", middleware.authorize, menuController.deleteMenu);
 // router.get("/getPaging", menuController.getPagingMenus);

@@ -89,5 +89,5 @@ io.on("connection", (socket) => {
 global.io = io;
 server.listen(port, (req, res) => {
   console.log("server listening on port " + port);
-  init();
+  // init();
 });
