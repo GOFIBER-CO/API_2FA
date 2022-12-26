@@ -13,9 +13,8 @@ let ProfileSchema = new Schema({
     type: String,
     // required: true,
     // default:''
-
   },
- 
+
   userCreated: {
     type: Schema.Types.ObjectId,
     ref: "Users",

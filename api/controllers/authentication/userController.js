@@ -294,12 +294,11 @@ async function register(req, res) {
 }
 async function updateSocketUser(req, res) {
   try {
-    const { socketId } = req.body;
     let newsocket = {
       updatedTime: Date.now(),
-      $addToSet: { socketId: socketId },
+      $addToSet: { socketId: req.params.id },
     };
-    let updateSocket = await Users.updateOne({ _id: req.params.id }, newsocket);
+    let updateSocket = await Users.updateOne({ _id: req.user._id }, newsocket);
     if (!updateSocket) {
       let response = new ResponseModel(0, "No item found!", null);
       res.json(response);
@@ -320,7 +319,7 @@ async function resetSocketUser(req, res) {
       updatedTime: Date.now(),
       socketId: [],
     };
-    let updateSocket = await Users.updateOne({ _id: req.params.id }, newsocket);
+    let updateSocket = await Users.updateOne({ _id: req.user._id }, newsocket);
     if (!updateSocket) {
       let response = new ResponseModel(0, "No item found!", null);
       res.json(response);
@@ -383,7 +382,6 @@ async function getUserByEmail(req, res) {
   if (req.body.email) {
     try {
       let user = await Users.findOne({ email: req.body.email });
-      console.log(user);
       if (user === null) {
         res.status(404).json({});
         return;

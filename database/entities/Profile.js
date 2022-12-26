@@ -4,23 +4,22 @@ const { Schema } = mongoose;
 
 let profileSchema = new Schema(
   {
-    overView: {
-      name: String,
-      group: {
-        //   type: Schema.Types.ObjectId,
-        type: String,
-        ref: "Group",
-        default: null,
-      },
-      operatingSystem: {
-        type: String,
-        default: "1", //1: windows 2:linux
-      },
-      version: { type: String, default: "version default" },
-      browser: { type: String, default: "browser default" },
-      comment: { type: String, default: null },
-      isAutoRenew: { type: Boolean, default: true },
+    name: { type: String, unique: true },
+    group: {
+      //   type: Schema.Types.ObjectId,
+      type: String,
+      ref: "Group",
+      default: null,
     },
+    operatingSystem: {
+      type: String,
+      default: "1", //1: windows 2:linux
+    },
+    version: { type: String, default: "version default" },
+    browser: { type: String, default: "browser default" },
+    comment: { type: String, default: null },
+    isAutoRenew: { type: Boolean, default: true },
+
     netWork: {
       proxy: { type: String, default: "proxy default" },
       timeZone: { type: String, default: "timeZone default" },
@@ -56,8 +55,8 @@ let profileSchema = new Schema(
       },
       //
       canvas: {
-        type: Number,
-        default: 0,
+        type: String,
+        default: "0",
       },
       disturbSound: { type: String, default: "disturbSound default" },
       disturbPicture: { type: String, default: "disturbPicture default" },
@@ -87,15 +86,34 @@ let profileSchema = new Schema(
     updatedTime: {
       type: Date,
     },
-    durationTime:{
-      type:Date,
-      
+    durationTime: {
+      type: Date,
     },
-    lastTimeOpen:{
+    lastTimeOpen: {
       type: Date,
       default: Date.now,
-    }
-    // hardWare: { type: String, default: "ramNumber default" },
+    },
+    userCreated: {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
+    },
+    status: {
+      type: Boolean,
+      default: false,
+    },
+    userId: [
+      {
+        user: {
+          type: Schema.Types.ObjectId,
+          ref: "Users",
+        },
+        role: String,
+      },
+    ],
+    userCreated: {
+      type: Schema.Types.ObjectId,
+      ref: "Users",
+    },
   },
 
   { versionKey: false }

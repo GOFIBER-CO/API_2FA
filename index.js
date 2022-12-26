@@ -7,22 +7,6 @@ const fileUpload = require("express-fileupload");
 var cors = require("cors");
 const app = express();
 const puppeteer = require("puppeteer");
-const { Server } = require("socket.io");
-const init = async () => {
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: [
-      "--user-data-dir=C:\\Users\\ADMIN\\AppData\\Local\\Google\\Chrome\\User Data\\Bach Bao 1",
-      "--disable-cookie-encryption --disable-crash-reporter --disable-infobars --no-default-browser-check --disable-encryption --proxy-bypass-list=*.mkt.city --disable-async-dns --disable-resize-lock --disable-background-mode --lang=en --donut-pie=undefined --disable-features=WebUSB --res",
-    ],
-  });
-
-  const page = await browser.newPage();
-  await page.goto("https://www.freecodecamp.org/");
-  browser.on("disconnected", async () => {
-    console.log("asdsadasdsadasdsa");
-  });
-};
 
 app.use(morgan("combined"));
 app.use(cors());
@@ -78,15 +62,16 @@ app.use("/api/group", groupRouter);
 //Group profile
 app.use("/api/group-profile", groupProfileRouter);
 const server = require("http").Server(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
+const io = require("socket.io")(server, {
+  cors: "*",
 });
+
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  console.log("Connected");
 });
-global.io = io;
+
+global._io = io;
+
 server.listen(port, (req, res) => {
   console.log("server listening on port " + port);
   // init();

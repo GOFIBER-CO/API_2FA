@@ -18,7 +18,7 @@ router.put(
 );
 
 router.put(
-  "/updateResetSocket/:id",
+  "/updateResetSocket",
   middlewares.authentication,
   userController.resetSocketUser
 );
