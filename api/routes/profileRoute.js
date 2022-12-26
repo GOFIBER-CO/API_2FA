@@ -6,7 +6,11 @@ const middleware = require("./middlewares");
 // router.post("/insert", middleware.authorize, profileController.createProfile);
 router.post("/insert", middleware.authorize, profileController.createProfile);
 router.delete("/delete/:id", profileController.deleteProfile);
-router.get("/getPaging", profileController.getPagingProfile);
+router.get(
+  "/getPaging",
+  middleware.authentication,
+  profileController.getPagingProfile
+);
 router.get("/getPagingNoGroup", profileController.getPagingProfileNoGroup);
 router.put("/update/:id", profileController.updateProfile);
 router.put("/updateDuration/:id", profileController.durationProfile);
