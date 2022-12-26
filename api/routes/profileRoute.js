@@ -15,7 +15,11 @@ router.get(
   middleware.authentication,
   profileController.getPagingProfile
 );
-router.get("/getPagingNoGroup", profileController.getPagingProfileNoGroup);
+router.get(
+  "/getPagingNoGroup",
+  middleware.authentication,
+  profileController.getPagingProfileNoGroup
+);
 router.get(
   "/getPagingProfileAdded",
   middleware.authentication,

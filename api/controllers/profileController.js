@@ -207,6 +207,7 @@ async function getPagingProfileNoGroup(req, res) {
   let pageIndex = req.query.pageIndex || 1;
   let searchObj = {
     group: "",
+    userCreated: req.user._id,
   };
 
   try {
@@ -405,14 +406,16 @@ async function endBrower(req, res) {
 async function getProfileByGroup(req, res) {
   if (isValidObjectId(req.params.id)) {
     try {
-      let menu = await Menus.find({'overView.group':req.params.id});
-      console.log('menu',menu)
+      let menu = await Menus.find({ "overView.group": req.params.id });
+      console.log("menu", menu);
       return res.json(menu);
     } catch (error) {
       return res.status(404).json(404, error.message, error);
     }
   } else {
-    return res.status(404).json(new ResponseModel(404, "ID profile is not valid!", null));
+    return res
+      .status(404)
+      .json(new ResponseModel(404, "ID profile is not valid!", null));
   }
 }
 exports.tranferProfile = tranferProfile;
