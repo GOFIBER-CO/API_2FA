@@ -6,10 +6,8 @@ let profileSchema = new Schema(
   {
     name: { type: String, unique: true },
     group: {
-      //   type: Schema.Types.ObjectId,
-      type: String,
-      ref: "Group",
-      default: null,
+      type: Schema.Types.ObjectId,
+      ref: "groupProfile",
     },
     operatingSystem: {
       type: String,
@@ -118,7 +116,6 @@ let profileSchema = new Schema(
 
   { versionKey: false }
 );
-
-profileSchema.index({ name: "text" });
+profileSchema.index({ name: "text" }, { unique: true });
 
 module.exports = mongoose.model("Profile", profileSchema);
