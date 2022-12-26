@@ -30,6 +30,7 @@ router.put("/update/:id", profileController.updateProfile);
 router.put("/updateDuration/:id", profileController.durationProfile);
 router.put("/updateUserInProfile/:id", profileController.updateUserInProfile);
 router.put("/transferProfile/:id", profileController.tranferProfile);
+router.put("/deleteMulti", profileController.deleteMultiProfile);
 router.put(
   "/copyProfile/:id",
   middleware.authentication,

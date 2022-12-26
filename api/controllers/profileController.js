@@ -69,7 +69,6 @@ async function updateProfile(req, res) {
   //   res.sendStatus(403);
   // }
 }
-
 async function deleteProfile(req, res) {
   // console.log(req.params);
   //   if (req.actions.includes("deleteProfile")) {
@@ -96,7 +95,21 @@ async function deleteProfile(req, res) {
   //     res.sendStatus(403);
   //   }
 }
-
+async function deleteMultiProfile(req, res) {
+  try {
+    let profile = await Profile.deleteMany({ _id: { $in: req.body.id } });
+    if (!profile) {
+      let response = new ResponseModel(0, "No profile item found!", null);
+      res.json(response);
+    } else {
+      let response = new ResponseModel(1, "Delete profile success!", null);
+      res.json(response);
+    }
+  } catch (error) {
+    let response = new ResponseModel(404, error.message, error);
+    res.status(404).json(response);
+  }
+}
 async function getPagingProfile(req, res) {
   // console.log(`req.userId`, req.user._id);
   const currentDate = Date.now();
@@ -154,13 +167,15 @@ async function getPagingProfileAdded(req, res) {
   const currentDate = Date.now();
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
-  console.log(req.user._id);
-  const searchName = req.query.name;
+  const searchName = req.query.search;
   let searchObj = { "userId.user": req.user._id };
+
   if (searchName) {
     searchObj = {
-      name: { $regex: ".*" + req.query.name + ".*" },
-      "userId.user": req.user._id,
+      $and: [
+        { "userId.user": req.user._id },
+        { name: { $regex: ".*" + searchName + ".*" } },
+      ],
     };
   }
   try {
@@ -205,9 +220,13 @@ async function getPagingProfileAdded(req, res) {
 async function getPagingProfileNoGroup(req, res) {
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
+  let search = req.query.search || "";
   let searchObj = {
-    group: "",
-    userCreated: req.user._id,
+    $and: [
+      { group: "" },
+      { name: { $regex: ".*" + search + ".*" } },
+      { userCreated: req.user._id },
+    ],
   };
 
   try {
@@ -432,3 +451,4 @@ exports.durationProfile = durationProfile;
 exports.updateUserInProfile = updateUserInProfile;
 exports.getPagingProfileNoGroup = getPagingProfileNoGroup;
 exports.getPagingProfileAdded = getPagingProfileAdded;
+exports.deleteMultiProfile = deleteMultiProfile;
