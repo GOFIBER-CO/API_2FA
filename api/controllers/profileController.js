@@ -207,6 +207,7 @@ async function getPagingProfileNoGroup(req, res) {
   let pageIndex = req.query.pageIndex || 1;
   let searchObj = {
     group: "",
+    userCreated: req.user._id,
   };
 
   try {
