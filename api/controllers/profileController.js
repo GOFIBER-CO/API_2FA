@@ -401,6 +401,20 @@ async function endBrower(req, res) {
     res.status(404).json(404, error.message, error);
   }
 }
+
+async function getProfileByGroup(req, res) {
+  if (isValidObjectId(req.params.id)) {
+    try {
+      let menu = await Menus.find({'overView.group':req.params.id});
+      console.log('menu',menu)
+      return res.json(menu);
+    } catch (error) {
+      return res.status(404).json(404, error.message, error);
+    }
+  } else {
+    return res.status(404).json(new ResponseModel(404, "ID profile is not valid!", null));
+  }
+}
 exports.tranferProfile = tranferProfile;
 exports.createProfile = createProfile;
 exports.updateProfile = updateProfile;
@@ -408,6 +422,7 @@ exports.deleteProfile = deleteProfile;
 exports.getPagingProfile = getPagingProfile;
 exports.copyProfile = copyProfile;
 exports.getProfileById = getProfileById;
+exports.getProfileByGroup = getProfileByGroup;
 exports.startBrower = startBrower;
 exports.endBrower = endBrower;
 exports.durationProfile = durationProfile;

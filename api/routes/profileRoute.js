@@ -32,6 +32,7 @@ router.put(
   profileController.copyProfile
 );
 router.get("/getById/:id", profileController.getProfileById);
+router.get("/getByGroup/:id", profileController.getProfileByGroup);
 router.get(
   "/startBrower/:id",
   middleware.authentication,

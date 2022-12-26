@@ -74,4 +74,5 @@ global._io = io;
 
 server.listen(port, (req, res) => {
   console.log("server listening on port " + port);
+  // init();
 });
