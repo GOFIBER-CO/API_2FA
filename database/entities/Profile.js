@@ -117,6 +117,5 @@ let profileSchema = new Schema(
 
   { versionKey: false }
 );
-profileSchema.index({ name: "text" }, { unique: true });
 
 module.exports = mongoose.model("Profile", profileSchema);
