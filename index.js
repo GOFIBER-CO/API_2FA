@@ -34,7 +34,9 @@ const feedbackRoute = require("./api/routes/feedbackRoute");
 const shortCodeRoute = require("./api/routes/shortCodeRoute");
 const schemaRoute = require("./api/routes/schemaRoute");
 const profileRoute = require("./api/routes/profileRoute");
-
+//system
+const operatingRoute = require("./api/routes/system/operating");
+const versionOfOperating = require("./api/routes/system/versionOfOperation");
 // const appRoute = require("./api/routes/appRoute");
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
@@ -53,6 +55,8 @@ app.use("/api/schema", schemaRoute);
 app.use("/api/feedback", feedbackRoute);
 app.use("/api/app", appRoute);
 app.use("/api/profile", profileRoute);
+app.use("/api/system/operating", operatingRoute);
+app.use("/api/system/version", versionOfOperating);
 
 //import routes
 app.use("/api/user", userRoute);
