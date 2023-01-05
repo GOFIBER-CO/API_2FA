@@ -20,7 +20,28 @@ let profileSchema = new Schema(
     isAutoRenew: { type: Boolean, default: true },
 
     netWork: {
-      proxy: { type: String, default: "proxy default" },
+      proxy: {
+        mode: {
+          type: String,
+          default: "none",
+        },
+        host: {
+          type: String,
+          default: null,
+        },
+        port: {
+          type: String,
+          default: null,
+        },
+        username: {
+          type: String,
+          default: null,
+        },
+        password: {
+          type: String,
+          default: null,
+        },
+      },
       timeZone: { type: String, default: "timeZone default" },
       fakeLocation: { type: String, default: "fakeLocation default" },
       customDNS: { type: String, default: "customDNS default" },
