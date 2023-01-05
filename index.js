@@ -34,6 +34,7 @@ const feedbackRoute = require("./api/routes/feedbackRoute");
 const shortCodeRoute = require("./api/routes/shortCodeRoute");
 const schemaRoute = require("./api/routes/schemaRoute");
 const profileRoute = require("./api/routes/profileRoute");
+const Users = require("./database/entities/authentication/Users");
 
 // const appRoute = require("./api/routes/appRoute");
 app.use(bodyParser.json({ limit: "50mb" }));
@@ -68,6 +69,13 @@ const io = require("socket.io")(server, {
 
 io.on("connection", (socket) => {
   console.log("Connected");
+  socket.on("clientDisconnectedBrower", async (data) => {
+    console.log(data);
+    const user = await Users.findById(data?.userId);
+    user?.socketId.map((item) => {
+      _io.to(item).emit("disconnectedBrower", data?.profile);
+    });
+  });
 });
 
 global._io = io;
