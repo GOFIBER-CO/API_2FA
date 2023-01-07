@@ -1,24 +1,25 @@
-const Operating = require("../../../database/entities/system/Operating");
+const Ram = require("../../../database/entities/system/Ram");
+const ProxyModel = require("../../../database/entities/system/Proxy");
+
 const PagedModel = require("../../models/PagedModel");
 const ResponseModel = require("../../models/ResponseModel");
 const { isValidObjectId, Types } = require("mongoose");
 
 //create
-async function createOperating(req, res) {
+async function createProxy(req, res) {
   console.log("res: ", req.body);
   // console.log(`req.userId`, req.userId);
   try {
     req.body.user = req.userId || "63998958b37cef51ccae971d";
-    let resData = new Operating(req.body);
-
+    req.body.modeOfProxy = req.body.modeOfProxy || "63b8e997f6f81bd99a3189cf";
+    let resData = new ProxyModel(req.body);
     console.log("resData: ", resData);
-
     resData.save((err, data) => {
       if (err) {
         let response = new ResponseModel(-2, err.message, err);
         res.json(response);
       } else {
-        let response = new ResponseModel(1, "Create Operating success!", data);
+        let response = new ResponseModel(1, "Create Proxy success!", data);
         res.json(response);
       }
     });
@@ -28,15 +29,15 @@ async function createOperating(req, res) {
   }
 }
 //delete
-async function deleteOperating(req, res) {
+async function deleteProxy(req, res) {
   if (isValidObjectId(req.params.id)) {
     try {
-      let data = await Operating.findByIdAndDelete(req.params.id);
+      let data = await ProxyModel.findByIdAndDelete(req.params.id);
       if (!data) {
         let response = new ResponseModel(0, "No item found!", null);
         res.json(response);
       } else {
-        let response = new ResponseModel(1, "Delete Operating success!", null);
+        let response = new ResponseModel(1, "Delete Proxy success!", null);
         res.json(response);
       }
     } catch (error) {
@@ -44,25 +45,23 @@ async function deleteOperating(req, res) {
       res.status(404).json(response);
     }
   } else {
-    res
-      .status(404)
-      .json(new ResponseModel(404, "OperatingId is not valid!", null));
+    res.status(404).json(new ResponseModel(404, "RamId is not valid!", null));
   }
 }
-async function updateOperating(req, res) {
+async function updateProxy(req, res) {
   console.log(`req.params`, req.params);
 
   try {
-    const data = { updatedTime: Date.now(), user: req.userId, ...req.body };
-    let updatedOPerating = await Operating.findOneAndUpdate(
+    const data = { updatedTime: Date.now(), ...req.body, user: req.userId };
+    let updatedProxy = await ProxyModel.findOneAndUpdate(
       { _id: req.params.id },
       data
     );
-    if (!updatedOPerating) {
+    if (!updatedProxy) {
       let response = new ResponseModel(0, "No item found!", null);
       res.json(response);
     } else {
-      let response = new ResponseModel(1, "Update Operating success!", data);
+      let response = new ResponseModel(1, "Update Proxy success!", data);
       res.status(200).json(response);
     }
   } catch (error) {
@@ -71,22 +70,27 @@ async function updateOperating(req, res) {
   }
 }
 
-async function getPagingOperating(req, res) {
+async function getPagingProxy(req, res) {
+  console.log("req: ", req.query);
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
   //   console.log(req.query.search);
   let searchObj = {};
-  if (req.query.search) {
+  if (req.query.searchByName) {
     searchObj = {
-      label: { $regex: ".*" + req.query.search + ".*" },
+      ip: { $regex: ".*" + req.query.searchByName + ".*" },
     };
+  }
+  if (req.query.searchByProxy) {
+    searchObj["modeOfProxy"] = req.query.searchByProxy;
   }
 
   try {
-    let data = await Operating.find(searchObj)
+    let data = await ProxyModel.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
       .populate("user")
+      .populate("modeOfProxy")
       .sort({ createdTime: "desc" });
 
     // data = data.map((item) => {
@@ -101,8 +105,8 @@ async function getPagingOperating(req, res) {
 
     // const count = data.length;
     // let totalPages = Math.ceil(count / pageSize);
-    let totalPages = await Operating.find({}).countDocuments();
-    console.log("totalPages: ", totalPages);
+    let totalPages = await ProxyModel.find({}).countDocuments();
+    // console.log("totalPages: ", totalPages);
 
     let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, data);
 
@@ -113,7 +117,7 @@ async function getPagingOperating(req, res) {
   }
 }
 
-exports.createOperating = createOperating;
-exports.deleteOperating = deleteOperating;
-exports.updateOperating = updateOperating;
-exports.getPagingOperating = getPagingOperating;
+exports.createProxy = createProxy;
+exports.deleteProxy = deleteProxy;
+exports.updateProxy = updateProxy;
+exports.getPagingProxy = getPagingProxy;

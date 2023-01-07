@@ -1,24 +1,23 @@
-const Operating = require("../../../database/entities/system/Operating");
+const HardDrive = require("../../../database/entities/system/HardDrive");
+
 const PagedModel = require("../../models/PagedModel");
 const ResponseModel = require("../../models/ResponseModel");
 const { isValidObjectId, Types } = require("mongoose");
 
 //create
-async function createOperating(req, res) {
+async function createHardDrive(req, res) {
   console.log("res: ", req.body);
   // console.log(`req.userId`, req.userId);
   try {
     req.body.user = req.userId || "63998958b37cef51ccae971d";
-    let resData = new Operating(req.body);
-
+    let resData = new HardDrive(req.body);
     console.log("resData: ", resData);
-
     resData.save((err, data) => {
       if (err) {
         let response = new ResponseModel(-2, err.message, err);
         res.json(response);
       } else {
-        let response = new ResponseModel(1, "Create Operating success!", data);
+        let response = new ResponseModel(1, "Create HardDrive success!", data);
         res.json(response);
       }
     });
@@ -28,15 +27,15 @@ async function createOperating(req, res) {
   }
 }
 //delete
-async function deleteOperating(req, res) {
+async function deleteHardDrive(req, res) {
   if (isValidObjectId(req.params.id)) {
     try {
-      let data = await Operating.findByIdAndDelete(req.params.id);
+      let data = await HardDrive.findByIdAndDelete(req.params.id);
       if (!data) {
         let response = new ResponseModel(0, "No item found!", null);
         res.json(response);
       } else {
-        let response = new ResponseModel(1, "Delete Operating success!", null);
+        let response = new ResponseModel(1, "Delete HardDrive success!", null);
         res.json(response);
       }
     } catch (error) {
@@ -46,23 +45,21 @@ async function deleteOperating(req, res) {
   } else {
     res
       .status(404)
-      .json(new ResponseModel(404, "OperatingId is not valid!", null));
+      .json(new ResponseModel(404, "HardDriveId is not valid!", null));
   }
 }
-async function updateOperating(req, res) {
-  console.log(`req.params`, req.params);
-
+async function updateHardDrive(req, res) {
   try {
     const data = { updatedTime: Date.now(), user: req.userId, ...req.body };
-    let updatedOPerating = await Operating.findOneAndUpdate(
+    let updatedHardDrive = await HardDrive.findOneAndUpdate(
       { _id: req.params.id },
       data
     );
-    if (!updatedOPerating) {
+    if (!updatedHardDrive) {
       let response = new ResponseModel(0, "No item found!", null);
       res.json(response);
     } else {
-      let response = new ResponseModel(1, "Update Operating success!", data);
+      let response = new ResponseModel(1, "Update HardDrive success!", data);
       res.status(200).json(response);
     }
   } catch (error) {
@@ -71,7 +68,7 @@ async function updateOperating(req, res) {
   }
 }
 
-async function getPagingOperating(req, res) {
+async function getPagingHardDrive(req, res) {
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
   //   console.log(req.query.search);
@@ -83,7 +80,7 @@ async function getPagingOperating(req, res) {
   }
 
   try {
-    let data = await Operating.find(searchObj)
+    let data = await HardDrive.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
       .populate("user")
@@ -101,7 +98,7 @@ async function getPagingOperating(req, res) {
 
     // const count = data.length;
     // let totalPages = Math.ceil(count / pageSize);
-    let totalPages = await Operating.find({}).countDocuments();
+    let totalPages = await HardDrive.find({}).countDocuments();
     console.log("totalPages: ", totalPages);
 
     let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, data);
@@ -113,7 +110,7 @@ async function getPagingOperating(req, res) {
   }
 }
 
-exports.createOperating = createOperating;
-exports.deleteOperating = deleteOperating;
-exports.updateOperating = updateOperating;
-exports.getPagingOperating = getPagingOperating;
+exports.createHardDrive = createHardDrive;
+exports.deleteHardDrive = deleteHardDrive;
+exports.updateHardDrive = updateHardDrive;
+exports.getPagingHardDrive = getPagingHardDrive;

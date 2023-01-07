@@ -1,19 +1,23 @@
 const Operating = require("../../../database/entities/system/Operating");
 const VersionOfOperating = require("../../../database/entities/system/VersionOfOperating");
+//
+const Supplier = require("../../../database/entities/system/Supplier");
+const Card = require("../../../database/entities/system/Card");
 
+//
 const PagedModel = require("../../models/PagedModel");
 const ResponseModel = require("../../models/ResponseModel");
 const { isValidObjectId, Types } = require("mongoose");
 
 //create
-async function createVersionOfOperating(req, res) {
+async function createCard(req, res) {
   console.log("req: ", req.body);
   // return;
   // console.log(`req.userId`, req.userId);
   try {
     req.body.user = req.userId || "630c754c5e1889934eee724a";
-    req.body.operating = req.body.operating || "63b684758e801bc786164bd1";
-    let resData = new VersionOfOperating(req.body);
+    req.body.supplier = req.body.supplier || "63b7fd112a17485fb895257a";
+    let resData = new Card(req.body);
 
     console.log("resData: ", resData);
 
@@ -22,11 +26,7 @@ async function createVersionOfOperating(req, res) {
         let response = new ResponseModel(-2, err.message, err);
         res.json(response);
       } else {
-        let response = new ResponseModel(
-          1,
-          "Create VersionOfOperating success!",
-          data
-        );
+        let response = new ResponseModel(1, "Create Card success!", data);
         res.json(response);
       }
     });
@@ -36,19 +36,15 @@ async function createVersionOfOperating(req, res) {
   }
 }
 //delete
-async function deleteVersionOfOperating(req, res) {
+async function deleteCard(req, res) {
   if (isValidObjectId(req.params.id)) {
     try {
-      let data = await VersionOfOperating.findByIdAndDelete(req.params.id);
+      let data = await Card.findByIdAndDelete(req.params.id);
       if (!data) {
         let response = new ResponseModel(0, "No item found!", null);
         res.json(response);
       } else {
-        let response = new ResponseModel(
-          1,
-          "Delete VersionOfOperating success!",
-          null
-        );
+        let response = new ResponseModel(1, "Delete Card success!", null);
         res.json(response);
       }
     } catch (error) {
@@ -62,28 +58,21 @@ async function deleteVersionOfOperating(req, res) {
   }
 }
 //update
-async function updateVersionOfOperating(req, res) {
+async function updateCard(req, res) {
   console.log(`req.params`, req.params);
   try {
     const data = {
       ...req.body,
       updatedTime: Date.now(),
       user: req.userId || "630c754c5e1889934eee724a",
-      operating: req.body.operating || "63b684788e801bc786164bd3",
+      supplier: req.body.supplier || "63b684788e801bc786164bd3",
     };
-    let updatedVersionOfOperating = await VersionOfOperating.findOneAndUpdate(
-      { _id: req.params.id },
-      data
-    );
-    if (!updatedVersionOfOperating) {
+    let updatedCard = await Card.findOneAndUpdate({ _id: req.params.id }, data);
+    if (!updatedCard) {
       let response = new ResponseModel(0, "No item found!", null);
       res.json(response);
     } else {
-      let response = new ResponseModel(
-        1,
-        "Update VersionOfOperating success!",
-        data
-      );
+      let response = new ResponseModel(1, "Update Card success!", data);
       res.json(response);
     }
   } catch (error) {
@@ -92,28 +81,28 @@ async function updateVersionOfOperating(req, res) {
   }
 }
 
-async function getPagingVersionOfOperating(req, res) {
+async function getPagingCard(req, res) {
   // console.log("req: ", req.query);
   let pageSize = req.query.pageSize || 10;
   let pageIndex = req.query.pageIndex || 1;
   let searchByLabel = req.query.searchByName || "";
-  let searchByOperating = req.query.searchByOperating || "";
+  let searchBySupplier = req.query.searchBySupplier || "";
   const searchObj = {};
   if (searchByLabel) {
     searchObj["label"] = { $regex: ".*" + searchByLabel + ".*" };
   }
-  if (searchByOperating) {
-    searchObj["operating"] = searchByOperating;
+  if (searchBySupplier) {
+    searchObj["supplier"] = searchBySupplier;
   }
   // search
   console.log(`aaa`, searchObj);
   // return;
   try {
-    let data = await VersionOfOperating.find(searchObj)
+    let data = await Card.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
       .populate("user")
-      .populate("operating")
+      .populate("supplier")
       .sort({ createdTime: "desc" });
 
     // data = data.map((item) => {
@@ -128,7 +117,7 @@ async function getPagingVersionOfOperating(req, res) {
 
     // const count = data.length;
     // let totalPages = Math.ceil(count / pageSize);
-    let totalPages = await VersionOfOperating.find({}).countDocuments();
+    let totalPages = await Card.find({}).countDocuments();
     console.log("totalPages0000: ", totalPages);
 
     let pagedModel = new PagedModel(pageIndex, pageSize, totalPages, data);
@@ -139,10 +128,10 @@ async function getPagingVersionOfOperating(req, res) {
     res.status(404).json(response);
   }
 }
-async function getVersionOfOperatingById(req, res) {
+async function getCardById(req, res) {
   if (isValidObjectId(req.params.id)) {
     try {
-      let data = await VersionOfOperating.findById(req.params.id)
+      let data = await Card.findById(req.params.id)
         .populate("user")
         .populate("operating");
       let response = new ResponseModel(1, "successes!", data);
@@ -154,8 +143,8 @@ async function getVersionOfOperatingById(req, res) {
     res.status(404).json(new ResponseModel(404, "MenuId is not valid!", null));
   }
 }
-exports.createVersionOfOperating = createVersionOfOperating;
-exports.deleteVersionOfOperating = deleteVersionOfOperating;
-exports.updateVersionOfOperating = updateVersionOfOperating;
-exports.getPagingVersionOfOperating = getPagingVersionOfOperating;
-exports.getVersionOfOperatingById = getVersionOfOperatingById;
+exports.createCard = createCard;
+exports.deleteCard = deleteCard;
+exports.updateCard = updateCard;
+exports.getPagingCard = getPagingCard;
+exports.getCardById = getCardById;
