@@ -8,9 +8,6 @@ router.post(
   //  middlewares.authorize,
   operatingController.createOperating
 );
-router.get("/", (req, res) => {
-  res.send(`hello`);
-});
 router.delete(
   "/delete/:id",
   //  middlewares.authorize,
@@ -23,5 +20,6 @@ router.put(
   operatingController.updateOperating
 );
 router.get("/getPaging", operatingController.getPagingOperating);
+router.get("/getById/:id", operatingController.getOperatingById);
 
 module.exports = router;

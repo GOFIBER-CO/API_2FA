@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const operatingController = require("../../controllers/system/operating");
 const versionOfOperating = require("../../controllers/system/versionOfOperating");
 
 const middlewares = require("../middlewares");

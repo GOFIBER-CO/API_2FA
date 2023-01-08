@@ -112,8 +112,23 @@ async function getPagingOperating(req, res) {
     res.status(404).json(response);
   }
 }
-
+async function getOperatingById(req, res) {
+  if (isValidObjectId(req.params.id)) {
+    try {
+      let data = await Operating.findById(req.params.id).populate("user");
+      let response = new ResponseModel(1, "successes!", data);
+      res.json(response);
+    } catch (error) {
+      res.status(404).json(404, error.message, error);
+    }
+  } else {
+    res
+      .status(404)
+      .json(new ResponseModel(404, "Operating is not valid!", null));
+  }
+}
 exports.createOperating = createOperating;
+exports.getOperatingById = getOperatingById;
 exports.deleteOperating = deleteOperating;
 exports.updateOperating = updateOperating;
 exports.getPagingOperating = getPagingOperating;
