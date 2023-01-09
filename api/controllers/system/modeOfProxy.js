@@ -90,8 +90,8 @@ async function getPagingModeOfProxy(req, res) {
     let data = await ModeOfProxyModel.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
-      .populate("user")
-      .sort({ createdTime: "desc" });
+      .populate("user");
+    // .sort({ createdTime: "desc" });
 
     // data = data.map((item) => {
     //   // console.log(items)
@@ -116,8 +116,25 @@ async function getPagingModeOfProxy(req, res) {
     res.status(404).json(response);
   }
 }
-
+async function getModeOfProxyById(req, res) {
+  if (isValidObjectId(req.params.id)) {
+    try {
+      let data = await ModeOfProxyModel.findById(req.params.id).populate(
+        "user"
+      );
+      let response = new ResponseModel(1, "successes!", data);
+      res.json(response);
+    } catch (error) {
+      res.status(404).json(404, error.message, error);
+    }
+  } else {
+    res
+      .status(404)
+      .json(new ResponseModel(404, "ModeOfProxyModel id is not valid!", null));
+  }
+}
 exports.createModeOfProxy = createModeOfProxy;
 exports.deleteModeOfProxy = deleteModeOfProxy;
 exports.updateModeOfProxy = updateModeOfProxy;
 exports.getPagingModeOfProxy = getPagingModeOfProxy;
+exports.getModeOfProxyById = getModeOfProxyById;

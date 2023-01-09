@@ -19,6 +19,7 @@ const { FingerprintInjector } = require("fingerprint-injector");
 const { getProxyList } = require("../../helpers/getProxy");
 async function createProfile(req, res) {
   // console.log(`req.body`, req.body);
+  // return;
   try {
     req.body.userCreated = req.user._id;
     let profile = new Profile(req.body);
@@ -55,12 +56,12 @@ async function createProfile(req, res) {
 
 async function updateProfile(req, res) {
   // console.log(`req.params`, req.params);
-  // console.log(`body`, req.body.data);
-  // return
-  // if (req.actions.includes("updateProfile")) {
+  console.log(`body`, req.body);
+  // return;
+
   try {
     // let newMenu = { updatedTime: Date.now(), user: req.userId, ...req.body };
-    let newProfile = { updatedTime: Date.now(), ...req.body.data };
+    let newProfile = { updatedTime: Date.now(), ...req.body };
 
     let updatedProfile = await Profile.findOneAndUpdate(
       { _id: req.params.id },
@@ -77,9 +78,6 @@ async function updateProfile(req, res) {
     let response = new ResponseModel(404, error.message, error);
     res.status(404).json(response);
   }
-  // } else {
-  //   res.sendStatus(403);
-  // }
 }
 async function deleteProfile(req, res) {
   // console.log(req.params);
@@ -260,8 +258,21 @@ async function getProfileById(req, res) {
   // console.log(req.params);
   if (isValidObjectId(req.params.id)) {
     try {
-      let profile = await Profile.findById(req.params.id).populate("group");
-      res.json(profile);
+      let profile = await Profile.findById(req.params.id)
+        .populate("group")
+        .populate("operatingSystem")
+        .populate("version")
+        .populate("browser")
+        .populate("netWork.proxy")
+        .populate("advances.language")
+        .populate("advances.sizeDisplay")
+        .populate("advances.core")
+        .populate("advances.hardDrive")
+        .populate("advances.ram")
+        .populate("advances.supplierCard")
+        .populate("advances.card");
+
+      res.status(200).json({ message: "Success", profile });
     } catch (error) {
       res.status(404).json(404, error.message, error);
     }
@@ -288,6 +299,9 @@ async function durationProfile(req, res) {
   }
 }
 async function updateUserInProfile(req, res) {
+  // console.log("req: ", req.body);
+
+  // return;
   try {
     const { id, role } = req.body;
 
@@ -407,7 +421,7 @@ async function updateUserInMultiProfile(req, res) {
 async function tranferProfile(req, res) {
   try {
     const { id } = req.body;
-    console.log(id);
+    // console.log(id);
     let newUserProfile = {
       updatedTime: Date.now(),
       userCreated: id,
@@ -801,8 +815,7 @@ async function startBrower(req, res) {
         locale: fingerprint.navigator.language,
         viewport: fingerprint.screen,
         headless: false,
-        executablePath:
-          "chrome-win\\chrome.exe",
+        executablePath: "chrome-win\\chrome.exe",
       });
       browser2.close().then(async () => {
         const preferences_raw = await readFile(
@@ -826,8 +839,7 @@ async function startBrower(req, res) {
           locale: fingerprint.navigator.language,
           viewport: fingerprint.screen,
           headless: false,
-          executablePath:
-            "chrome-win\\chrome.exe",
+          executablePath: "chrome-win\\chrome.exe",
         });
         await browser.newPage();
         await Profile.findByIdAndUpdate(req.params.id, {
@@ -878,8 +890,7 @@ async function startBrower(req, res) {
         locale: fingerprint.navigator.language,
         viewport: fingerprint.screen,
         headless: false,
-        executablePath:
-          "chrome-win\\chrome.exe",
+        executablePath: "chrome-win\\chrome.exe",
       });
 
       await browser.newPage();
@@ -926,7 +937,7 @@ async function getProfileByGroup(req, res) {
   if (isValidObjectId(req.params.id)) {
     try {
       let menu = await Menus.find({ "overView.group": req.params.id });
-      console.log("menu", menu);
+      // console.log("menu", menu);
       return res.json(menu);
     } catch (error) {
       return res.status(404).json(404, error.message, error);

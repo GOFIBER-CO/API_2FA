@@ -24,5 +24,6 @@ router.put(
   modeOfProxyController.updateModeOfProxy
 );
 router.get("/getPaging", modeOfProxyController.getPagingModeOfProxy);
+router.get("/getOne/:id", modeOfProxyController.getModeOfProxyById);
 
 module.exports = router;

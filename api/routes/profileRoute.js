@@ -49,11 +49,11 @@ router.put(
 );
 router.get("/getById/:id", profileController.getProfileById);
 router.get("/getByGroup/:id", profileController.getProfileByGroup);
-// router.get(
-//   "/startBrower/:id",
-//   middleware.authentication,
-//   profileController.startBrower
-// );
+router.get(
+  "/startBrower/:id",
+  middleware.authentication,
+  profileController.startBrower
+);
 router.get(
   "/endBrower/:id",
   middleware.authentication,

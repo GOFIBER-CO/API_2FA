@@ -11,36 +11,44 @@ let profileSchema = new Schema(
       default: null,
     },
     operatingSystem: {
-      type: String,
-      default: "1", //1: windows 2:linux
+      type: Schema.Types.ObjectId,
+      ref: "Operatings",
+      default: null,
     },
-    version: { type: String, default: "version default" },
-    browser: { type: String, default: "browser default" },
+    version: {
+      type: Schema.Types.ObjectId,
+      ref: "versions",
+      default: null,
+    },
+    browser: {
+      type: Schema.Types.ObjectId,
+      ref: "Browsers",
+      default: null,
+    },
     comment: { type: String, default: null },
     isAutoRenew: { type: Boolean, default: true },
 
     netWork: {
       proxy: {
-        mode: {
-          type: String,
-          default: "none",
-        },
-        host: {
-          type: String,
-          default: null,
-        },
-        port: {
-          type: String,
-          default: null,
-        },
-        username: {
-          type: String,
-          default: null,
-        },
-        password: {
-          type: String,
-          default: null,
-        },
+        type: Schema.Types.ObjectId,
+        ref: "ModeOfProxys",
+        default: null,
+      },
+      ipOfProxy: {
+        type: String,
+        default: "",
+      },
+      portOfProxy: {
+        type: String,
+        default: "",
+      },
+      usernameOfProxy: {
+        type: String,
+        default: "",
+      },
+      passwordOfProxy: {
+        type: String,
+        default: "",
       },
       timeZone: { type: String, default: "timeZone default" },
       fakeLocation: { type: String, default: "fakeLocation default" },
@@ -55,11 +63,31 @@ let profileSchema = new Schema(
     // browser: { type: String, default: "browser default" },
     advances: {
       userAgent: { type: String, default: "userAgent default" },
-      language: { type: String, default: "language default" },
-      sizeDisplay: { type: String, default: "screenSize default" },
-      core: { type: Number, default: 2 },
-      hardDrive: { type: String, default: "hardDrive default" },
-      ram: { type: Number, default: 2 },
+      language: {
+        type: Schema.Types.ObjectId,
+        ref: "Languages",
+        default: null,
+      },
+      sizeDisplay: {
+        type: Schema.Types.ObjectId,
+        ref: "Displays",
+        default: null,
+      },
+      core: {
+        type: Schema.Types.ObjectId,
+        ref: "Cores",
+        default: null,
+      },
+      hardDrive: {
+        type: Schema.Types.ObjectId,
+        ref: "HardDrives",
+        default: null,
+      },
+      ram: {
+        type: Schema.Types.ObjectId,
+        ref: "Rams",
+        default: null,
+      },
       isBlockFollow: {
         type: Boolean,
         default: false,
@@ -82,8 +110,16 @@ let profileSchema = new Schema(
       disturbPicture: { type: String, default: "disturbPicture default" },
       webGL: { type: String, default: "webGL default" },
       //
-      supplierCard: { type: String, default: "cardSupplier default" },
-      card: { type: String, default: "cardScreen default" },
+      supplierCard: {
+        type: Schema.Types.ObjectId,
+        ref: "Suppliers",
+        default: null,
+      },
+      card: {
+        type: Schema.Types.ObjectId,
+        ref: "Cards",
+        default: null,
+      },
       websiteStarted: { type: String, default: "WebsiteStart default" },
       port: { type: String, default: "controlPort default" },
       //

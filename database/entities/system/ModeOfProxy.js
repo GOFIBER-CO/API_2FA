@@ -12,6 +12,25 @@ let modeOfProxySchema = new Schema(
       type: String,
       require: true,
     },
+    options: {
+      isShowIp: {
+        type: Boolean,
+        default: true,
+      },
+      isShowPassword: {
+        type: Boolean,
+        default: true,
+      },
+      isShowPort: {
+        type: Boolean,
+        default: true,
+      },
+      isShowUsername: {
+        type: Boolean,
+        default: true,
+      },
+    },
+
     user: {
       type: Schema.Types.ObjectId,
       ref: "Users",
