@@ -90,7 +90,7 @@ let profileSchema = new Schema(
       },
       isBlockFollow: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       numberDisplay: { type: Number, default: 2 },
       numberMicro: {
