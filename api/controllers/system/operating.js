@@ -86,8 +86,8 @@ async function getPagingOperating(req, res) {
     let data = await Operating.find(searchObj)
       .skip(pageSize * pageIndex - pageSize)
       .limit(parseInt(pageSize))
-      .populate("user")
-      .sort({ createdTime: "desc" });
+      .populate("user");
+    // .sort({ createdTime: "desc" });
 
     // data = data.map((item) => {
     //   // console.log(items)

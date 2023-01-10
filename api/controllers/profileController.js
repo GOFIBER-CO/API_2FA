@@ -18,10 +18,10 @@ const { FingerprintGenerator } = require("fingerprint-generator");
 const { FingerprintInjector } = require("fingerprint-injector");
 const { getProxyList } = require("../../helpers/getProxy");
 async function createProfile(req, res) {
-  // console.log(`req.body`, req.body);
+  console.log(`req.body`, req.body);
   // return;
   try {
-    req.body.userCreated = req.user._id;
+    req.body.userCreated = req.user?._id || "63a90e72bc9f9326f02b360c";
     let profile = new Profile(req.body);
 
     profile.createdTime = Date.now();

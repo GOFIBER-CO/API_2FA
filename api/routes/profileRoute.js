@@ -6,7 +6,7 @@ const middleware = require("./middlewares");
 // router.post("/insert", middleware.authorize, profileController.createProfile);
 router.post(
   "/insert",
-  middleware.authentication,
+  // middleware.authentication,
   profileController.createProfile
 );
 router.delete("/delete/:id", profileController.deleteProfile);
@@ -26,7 +26,7 @@ router.get(
   profileController.getPagingProfileAdded
 );
 
-router.put("/update/:id", profileController.updateProfile);
+router.patch("/update/:id", profileController.updateProfile);
 router.put("/updateDuration/:id", profileController.durationProfile);
 router.put("/updateUserInProfile/:id", profileController.updateUserInProfile);
 router.put(
