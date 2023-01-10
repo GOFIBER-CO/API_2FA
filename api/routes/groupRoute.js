@@ -22,7 +22,11 @@ router.delete(
   groupController.deleteGroup
 );
 router.get("/getById/:id", groupController.getGroupById);
-router.get("/getPaging", groupController.getPagingGroups);
+router.get(
+  "/getPaging",
+  middlewares.authentication,
+  groupController.getPagingGroups
+);
 router.get(
   "/getByUser",
   middlewares.authentication,

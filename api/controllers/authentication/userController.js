@@ -137,10 +137,11 @@ async function login2Fa(req, res) {
 
 async function login(req, res) {
   try {
-    let user = await Users.findOne({ userName: req.body.userName }).populate(
-      "role"
-    );
+    let user = await Users.findOne({ userName: req.body.userName })
+      .select("-socketId")
+      .populate("role");
     if (user) {
+      console.log(user);
       if (
         user.password ==
         crypto

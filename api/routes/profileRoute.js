@@ -6,7 +6,7 @@ const middleware = require("./middlewares");
 // router.post("/insert", middleware.authorize, profileController.createProfile);
 router.post(
   "/insert",
-  middleware.authentication,
+  // middleware.authentication,
   profileController.createProfile
 );
 router.delete("/delete/:id", profileController.deleteProfile);
@@ -15,17 +15,33 @@ router.get(
   middleware.authentication,
   profileController.getPagingProfile
 );
-router.get("/getPagingNoGroup", profileController.getPagingProfileNoGroup);
+router.get(
+  "/getPagingNoGroup",
+  middleware.authentication,
+  profileController.getPagingProfileNoGroup
+);
 router.get(
   "/getPagingProfileAdded",
   middleware.authentication,
   profileController.getPagingProfileAdded
 );
 
-router.put("/update/:id", profileController.updateProfile);
+router.patch("/update/:id", profileController.updateProfile);
 router.put("/updateDuration/:id", profileController.durationProfile);
 router.put("/updateUserInProfile/:id", profileController.updateUserInProfile);
+router.put(
+  "/updateUserInMultiProfile",
+  profileController.updateUserInMultiProfile
+);
+
+router.put("/updateGroupProfile", profileController.updateGroupProfile);
 router.put("/transferProfile/:id", profileController.tranferProfile);
+router.put("/deleteMulti", profileController.deleteMultiProfile);
+router.put(
+  "/updateMultiUserInProfile",
+  profileController.updateMultiUserInProfile
+);
+router.put("/tranferMultiProfile", profileController.tranferMultiProfile);
 router.put(
   "/copyProfile/:id",
   middleware.authentication,

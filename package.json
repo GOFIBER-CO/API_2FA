@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack": "pkg -t node16-win-x64 ./index.js"
   },
   "repository": {
     "type": "git",
@@ -22,15 +23,23 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
+    "debug": "^4.3.4",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-fileupload": "^1.4.0",
+    "fingerprint-generator": "^2.1.7",
+    "fingerprint-injector": "^2.1.7",
+    "fs": "^0.0.1-security",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.4",
     "mongoose": "^6.0.14",
+    "nexe": "^4.0.0-rc.2",
     "node-schedule": "^2.1.0",
     "nodemailer": "^6.8.0",
+    "os": "^0.1.2",
     "otplib": "^12.0.1",
+    "pkg": "^5.8.0",
+    "playwright": "^1.29.1",
     "puppeteer": "^19.4.1",
     "qrcode": "^1.5.1",
     "socket.io": "^4.5.4",
